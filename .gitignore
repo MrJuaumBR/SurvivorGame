@@ -1,0 +1,15 @@
+*/__pycache__
+*.vscode
+
+# Databases
+*.pydb
+*.db
+*.pyb
+*.pyd
+*.data
+*.pydata
+
+# Plugins
+*.pyplugin
+/data/plugins/assets
+/data/plugins/__pycache__

@@ -1,0 +1,6 @@
+
+requests
+pygame
+colorama
+JPyDB>=0.7
+pipreqs
