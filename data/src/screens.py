@@ -13,13 +13,16 @@ def createSave() -> bool:
     while run:
         # Draw Components
         pme.draw_text((25,50),'Character Name: ', 2, 'black')
-        TX_BOX, CharName = pme.draw_textbox((30,80),1,['white',pme.colors['salmon'],pme.colors['orangered']],TX_BOX,CharName,25,[K_SPACE])
+        TX_BOX, CharName = pme.draw_textbox((30,80),1,['white',pme.colors['salmon'],pme.colors['orangered']],TX_BOX,CharName,12,[K_SPACE])
 
-        pme.draw_text((25,125),'Character Color:', 2, 'black')
-        color_ind = pme.draw_select((90,165),Colors,color_ind, 1, ((255,255,255),Colors[color_ind]))
+        if len(CharName) < 5:
+            pme.draw_text((25,125),'Character Name must be at least 5 characters', 2, 'red')
+
+        pme.draw_text((25,165),'Character Color:', 2, 'black')
+        color_ind = pme.draw_select((125,205),Colors,color_ind, 1, ((255,255,255),Colors[color_ind]))
 
         if pme.draw_button((25,SCREEN.get_size()[1]-100),'SAVE',2,'white','green'):
-            if len(CharName) >= 5 and len(CharName) <= 25:
+            if len(CharName) >= 5 and len(CharName) <= 12:
                 plr = player()
                 plr.name = CharName
                 plr.Color = Colors[color_ind]
@@ -65,6 +68,7 @@ def LoadSaveScreen():
             Name = lambda plr: plr.name[:10] if len(plr.name) > 10 else plr.name
             pme.draw_rect(REAL_POS,(100,80),(50,100,200))
             pme.draw_text((REAL_POS[0]+10,REAL_POS[1]+10),Name(plr),2,'black',antialias=True)
+            pme.draw_text((REAL_POS[0]+10,REAL_POS[1]+35),plr.Level,2,'green',antialias=True)
             # Buttons
             sel = pme.draw_button((REAL_POS[0]+5,REAL_POS[1]+55),'Select',4,'white','green')
             dell = pme.draw_button((REAL_POS[0]+70,REAL_POS[1]+55),'Delete',4,'white','red',True)

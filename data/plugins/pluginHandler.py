@@ -18,6 +18,8 @@ class Loader():
     Accetable = ['pyplugin','py']
     def __init__(self, pme, gameVersion) -> None:
         self.Folder = './data/plugins/'
+        if not os.path.exists(self.Folder+'assets/'):
+            os.mkdir(self.Folder+'assets/')
         self.IGNORE = ['pluginHandler.py','.py']
 
     def CheckIntegrity(self, _file:str) -> bool:

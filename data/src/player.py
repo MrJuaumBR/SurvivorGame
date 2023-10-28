@@ -16,6 +16,7 @@ Animation_Y_Colors = {
 class player(pyg.sprite.Sprite):
     _layer = 1
     saveable = ['name','health','maxhealth','speed','pos','_locked','_dead', 'Color','Level','Experience']
+    _StatusOpen = False
     def __init__(self, XY=(0,0),*groups) -> None:
         super().__init__(*groups)
         self.name = ""
@@ -55,6 +56,13 @@ class player(pyg.sprite.Sprite):
             # Warns
         self.warns = []
         self.ClearAll = 0
+
+            # Status
+        self.attack = 1 # Damage
+        self.agility = 1 # Speed
+        self.defense = 1 # Health
+        self.inteligence = 1 # Magic Damage
+        self.luck = 1 # Luck(Drops, Exp and Critical)
     def animationsBuild(self):
         self.animations = {'Idle':[],'Walk':[],'Dead':[]}
         s = spritesheet("."+TEXTURES_PATH+'/players.png')
@@ -99,7 +107,6 @@ class player(pyg.sprite.Sprite):
             else:
                 self.ClearAll -= 1
                 
-
     def addWarn(self, warn:str, color:tuple or str):
         self.ClearAll = TC.getTime(3.5)
         self.warns.insert(0,[warn,color])
@@ -184,6 +191,20 @@ class player(pyg.sprite.Sprite):
         self.checkWarn()
         return super().update()
     
+    # UIs
+    def drawUis(self):
+        self.draw_status(self._StatusOpen)
+
+    def draw_status(self, state:bool):
+        if state:
+            # Background
+            pme.draw_rect((75,75),(pme.screen.get_size()[0]-(75*2),pme.screen.get_size()[1]-(75*2)),(0,0,0,100))
+
+            # Title
+            pme.draw_text((80,80),'Status',1,'white',antialias=True)
+            if pme.draw_button((pme.screen.get_size()[0]-(75*3),80),'Close',1,'white','red',True):
+                self._StatusOpen = False
+
     # Save
     def Save(self) -> bytes:
         self.pos = self.rect.topleft
