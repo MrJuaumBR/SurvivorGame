@@ -1,8 +1,12 @@
+# LICENSE
+*Please follow the license*
+
 # TODO List
 - [x] Plugins/Mods
     - [x] Enable/Disable
     - [x] Download External
     - [x] In Game
+    - [x] BasePlugin
 - [x] Character Creation
     - [x] least 5 chars required warn
     - [x] Color Select
@@ -11,6 +15,18 @@
     - [x] Volume
     - [x] Fullscreen
     - [x] Mods/Plugins Options
+- [x] Legals
+    - [x] Add LICENSE
+    - [x] Break Lines
+- [x] Main Menu
+    - [x] Legals Button
+    - [x] GitHub Button
+    - [x] Discord Button
+- [x] In Game
+    - [x] Status
+    - [x] Level
+    - [x] Experience
+    - [x] Life and Damage
 
 # Addons/Plugins/Mods
 

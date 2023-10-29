@@ -9,7 +9,7 @@ class Enemy(pyg.sprite.Sprite):
     _damage = 5
     _speed = 5
     _locked = False
-    
+    _type = 'enemy'
     health = 100
     maxhealth = 100
     def __init__(self, XY,*groups) -> None:

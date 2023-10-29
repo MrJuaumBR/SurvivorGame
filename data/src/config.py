@@ -3,7 +3,7 @@ import random
 import importlib
 import webbrowser
 
-global TRACKS
+global TRACKS, VERSION, BUILD_TILES
 
 VERSION = 0.1
 
@@ -49,6 +49,10 @@ CreateTables() # Create Tables
 CONFIG = dict(DB.database.get_value('config','data',0))
 
 PLUGINS_HANDLER = {}
+
+BUILD_TILES = {
+    '0':None
+}
 
 # Setup Game
 pyg.init()

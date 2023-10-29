@@ -4,15 +4,20 @@ from .player import player
 from .data.items import *
 from .data.enemys import *
 
+def loadBuild():
+    for x,item in enumerate(BUILD_ITEMS,0):
+        BUILD_TILES[str(x)] = item
+
 def game(playerId):
     run = True
+    loadBuild()
     pyg.mixer.music.load(TRACKS['ingame'])
     pyg.mixer.music.play(-1)
     cam = Camera()
     Plr = player((550,550),cam)
     Plr.Load(DB.database.get_value('saves','data',id=playerId))
     def ex():
-        DB.database.update_value('saves','data',playerId,Plr.Save())
+        DB.database.update_value('saves','data',playerId,Plr.Save(cam))
         DB.database.save()
         pyg.mixer.music.stop()
         return False
@@ -51,7 +56,7 @@ def game(playerId):
     
         # Update
         PLoader.LoadGameLoop(PLUGINS_HANDLER, globals(), locals())
-        Plr.drawUis()
+        Plr.drawUis(BUILD_TILES)
         pme.update()
         cam.update(Plr)
 

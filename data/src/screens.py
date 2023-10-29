@@ -267,3 +267,41 @@ def ModsPlugins():
         pme.update()
         pme.screen.fill('white') # Fill SCreen
         CLOCK.tick(CONFIG['FPS'])
+
+def Legals():
+    run = True
+    with open('./LICENSE','r') as f:
+        textl = f.readlines()
+    Y_SHIFT = 50
+    while run:
+        pme.draw_text((20,10),'Legals',2,'black',antialias=True)
+        pme.draw_rect((20,50),(SCREEN.get_size()[0]-40,SCREEN.get_size()[1]-100),(0,0,0))
+        x = 0
+        for line in textl:
+            if line != '\n':
+                if not (Y_SHIFT+(15*x) > SCREEN.get_size()[1]-100) and not (Y_SHIFT+(15*x) < 50):
+                    if len(line) > 90:
+                        pme.draw_text((25,Y_SHIFT+(15*x)),line[:90].replace('\n',''),4,'white',antialias=True)
+                        x+= 1
+                    pme.draw_text((25,Y_SHIFT+(15*x+1)),line[90:].replace('\n',''),4,'white',antialias=True)
+                    x += 1
+            else:
+                x+= 1
+        
+        BAR_Y_SIZE = (SCREEN.get_size()[1]-100)//len(textl)
+        BAR_Y_POS = Y_SHIFT
+        if BAR_Y_POS < 55:
+            BAR_Y_POS = 55
+        if BAR_Y_POS > SCREEN.get_size()[1]-(100+BAR_Y_SIZE):
+            BAR_Y_POS = SCREEN.get_size()[1]-(100+BAR_Y_SIZE)
+        pme.draw_rect((SCREEN.get_size()[0]-55,BAR_Y_POS),(15,BAR_Y_SIZE),(200,200,200,200))
+        if ShowFPS(0):
+            run = False
+        for ev in pme.events():
+            if ev.type == QUIT:
+                run = False
+            elif ev.type == MOUSEWHEEL:
+                Y_SHIFT += -ev.y * 5
+
+        pme.update()
+        pme.screen.fill('white') # Fill SCreen

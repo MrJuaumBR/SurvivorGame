@@ -1,7 +1,7 @@
 """
 File: pyplugin
 """
-
+from .basePlugin import _Plugin as _BasePlugin
 import requests
 import os
 import pygame
@@ -16,7 +16,7 @@ def ConvertSize(size):
     elif size < 1024**4:
         return f"{size/(1024**3):.2f}GB"
 
-class _Plugin():
+class _Plugin(_BasePlugin):
     ITEMS = {}
     AssetsFolder = "./data/plugins/assets"
 
@@ -43,42 +43,6 @@ class _Plugin():
         self.game_show_menu = False
 
         self._Musics['ingame'] = 'mainmusic.wav'
-    def _FixUrl(self, url):
-        return (url.split('?'))[0]
-
-    def isEnabled(self) -> bool:
-        if self.Enabled:
-            return True
-        else:
-            return False
-
-    def _DownloadData(self, local:str, chunk_size=128):
-        try:
-            save_path = self.AssetsFolder
-            r = requests.get(local, stream=True)
-            filename = self._FixUrl(local.split('/')[-1])
-            save_path = f'{save_path}/{self.Name.replace(" ", "")}/{filename}'
-            if not os.path.exists(f'{save_path.replace(filename,"")}'):
-                print("\n\nPlugin creating folder...")
-                os.mkdir(f"{save_path.replace(filename,'')}")
-            if not os.path.exists(save_path):
-                print(f"Downloading: {save_path}...")
-                with open(save_path, 'wb') as fd:
-                    for chunk in r.iter_content(chunk_size=chunk_size):
-                        fd.write(chunk)
-                print("Download Completed!\n\n")
-            else:
-                print(f"Required: {save_path}, But already exists.")
-        except Exception as err:
-            print("Error occurred while trying to download plugin data.")
-            raise(err)
-
-    def varsGet(self,defines:list or dict, varname) -> any:
-        x = defines.keys()
-        if varname in x:
-            return defines[varname]
-        else:
-            return None
 
     # Loops
     def MainGameLoop(self):
@@ -111,6 +75,8 @@ class _Plugin():
             self.pme.draw_text((60,95),f'Name: {player.name[:65]}',4, (0,0,0),(255,255,255))
             self.pme.draw_text((60,125),f'Origin Pos: {player.rect.center}, Offset pos: {camera.convert_offset(player.rect.topleft)}',4, (0,0,0),(255,255,255))
             self.pme.draw_text((175,155),f'Player Lvl: {player.Level}, Experience: {player.Experience}/{player.Level * 100}',4, (0,0,0),(255,255,255))
+            self.pme.draw_text((60, 200),f'Attack: {player.attack}, Defense: {player.defense}, Agility: {player.agility}, Inteligence: {player.inteligence}, Luck: {player.luck}',2, (0,0,0),(255,255,255))
+            self.pme.draw_text((60, 250),f'Speed: {player.speed}, Damage: {player.damage}',2, (0,0,0),(255,255,255))
             if self.pme.draw_button((60,155),'+ 1 Level',1,'white','green'):
                 player.Experience += player.Level * 100
             if player._dead:
@@ -140,10 +106,6 @@ class _Plugin():
                 pygame.time.delay(100)
         if self.game_show_menu:
             self.drawGameMenu(player, camera)
-    
-    def Items(self) -> list:
-        Items = []
-        return Items
 
 class Plugin(_Plugin):
     def __init__(self, gameData) -> None:

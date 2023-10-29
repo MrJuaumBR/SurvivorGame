@@ -20,7 +20,7 @@ class Loader():
         self.Folder = './data/plugins/'
         if not os.path.exists(self.Folder+'assets/'):
             os.mkdir(self.Folder+'assets/')
-        self.IGNORE = ['pluginHandler.py','.py']
+        self.IGNORE = ['pluginHandler.py','basePlugin.py']
 
     def CheckIntegrity(self, _file:str) -> bool:
         x = _file.split('.')

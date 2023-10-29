@@ -68,3 +68,10 @@ class Camera(pyg.sprite.Group):
     def receive_sprites(self,*sprites):
         for spr in sprites:
             self.add(spr)
+
+    def saving(self) -> list:
+        s = []
+        for spr in self.sprites():
+            if str(spr._type).lower() in ['tile','item']:
+                s.append([spr.rect.topleft])
+        return s

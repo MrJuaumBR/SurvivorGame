@@ -66,6 +66,14 @@ def gameLoop():
         elif pme.draw_button((50,SCREEN.get_size()[1]-75),'EXIT',1,'white','red'):
             DB.save()
             pme.quit()
+        elif pme.draw_button((200,SCREEN.get_size()[1]-75),'LEGALS',2,'white','brown'):
+            Legals()
+        elif pme.draw_button((200,SCREEN.get_size()[1]-50),'GitHub',2,'white','black',True):
+            webbrowser.open('https://github.com/MrJuaumBR/SurvivorGame')
+            pyg.time.delay(100)
+        elif pme.draw_button((275,SCREEN.get_size()[1]-75),'Discord',2,'white','blue',True):
+            webbrowser.open('https://discord.gg/fb84sHDX7R')
+            pyg.time.delay(100)
         PLoader.LoadMainGameLoop(PLUGINS_HANDLER)
         pme.update()
         pme.screen.fill('white') # Fill Screen
