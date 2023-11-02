@@ -315,11 +315,12 @@ class player(pyg.sprite.Sprite):
         s = {}
         for item in self.saveable:
             s[item] = self.__dict__[item]
-        s['sprites']:list = camera.saving()
-        try:
-            s['sprites'].remove(self)
-        except:
-            pass
+        if camera:
+            s['sprites']:list = camera.saving()
+            try:
+                s['sprites'].remove(self)
+            except:
+                pass
         return base64.b64encode(pickle.dumps(s))
     
     def Load(self, data:bytes):

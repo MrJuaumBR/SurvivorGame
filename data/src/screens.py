@@ -26,7 +26,7 @@ def createSave() -> bool:
                 plr = player()
                 plr.name = CharName
                 plr.Color = Colors[color_ind]
-                x = plr.Save()
+                x = plr.Save(None)
                 DB.database.add_value('saves','data',value=x)
                 DB.save()
                 run = False
