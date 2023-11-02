@@ -29,9 +29,10 @@ def LoadPluginsMods():
             try:
                 pluginName = plugin.split('.')[-1]
                 plg = DB.database.findByText('plugins', 'pluginName',pluginName)
-                if not plg:
+                if not plg['id']:
                     DB.database.add_values('plugins',['pluginName','pluginState'],[pluginName,False])
                     DB.save()
+                plg = DB.database.findByText('plugins', 'pluginName',pluginName)
                 PLUGINS_HANDLER[pluginName+"_metadata"] = importlib.import_module(plugin)
                 PLUGINS_HANDLER[pluginName] = PLUGINS_HANDLER[pluginName+"_metadata"].Plugin(gameData)
                 PLUGINS_HANDLER[pluginName].Enabled = plg['pluginState']
