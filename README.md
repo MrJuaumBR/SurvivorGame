@@ -38,6 +38,8 @@
 [JPyDB](https://test.pypi.org/project/JPyDB/) >= 0.7.1
 
 
+# Full Informations at [README WEB FILE](./README.htm)
+
 !!!         MAKE SURE YOU INSTALLED JPYDB BY THE COMMAND IN [Test Pypi](https://test.pypi.org/project/JPyDB/)         !!!
 
 *full list at "requirements.txt"*

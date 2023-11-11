@@ -1,0 +1,165 @@
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/showdown@2.1.0/dist/showdown.min.js" integrity="sha512-LhccdVNGe2QMEfI3x4DVV3ckMRe36TfydKss6mJpdHjNFiV07dFpS2xzeZedptKZrwxfICJpez09iNioiSZ3hA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <title>Read-me</title>
+        <style>
+            .content {
+                background-color: cornflowerblue;
+                align-items: center;
+                margin-left: 20%;
+                margin-right: 20%;
+                width: 60%;
+            }
+            .table-content th{
+                border: .25em solid white;
+            }
+            .table-content caption{
+                border: .25em solid white;
+            }
+            .uarea{
+                background-color: blue;
+                border: .15em solid gainsboro;
+            }
+            .table-content {
+                border: .25em solid white;
+            }
+            h1{
+                color: aliceblue;
+                text-shadow: .15em .15em .3em black;
+            }
+            h3 {
+                color: aliceblue;
+            }
+            a{
+                color: aqua;
+                text-decoration: none;
+            }
+            .div-content {
+                background-color: bisque;
+                color: rgb(77, 88, 98);
+                border: 0.15em solid rgba(50,50, 50, 100);
+                margin: 1em;
+                box-shadow: .15em .15em .3em black;
+                text-shadow: .1em .1em 1.5em black;
+                font-size: medium;
+            }
+            .LoadFile{
+                background-color: none;
+                width: 96%;
+                margin-left: 2%;
+                margin-right: 2%;
+                height: 30em;
+            }
+            hr {
+                border: 0.15em solid cyan;
+            }
+            .bg-black{
+                background-color: black;
+            }
+            .fr-white{
+                color: white;
+            }
+            .scrollable{
+                overflow-y: scroll;
+            }
+            #LoadReadme{
+                margin-right: 2%;
+                margin-left: 2%;
+                width: 96%;
+                height: 30em;
+            }
+        </style>
+    </head>
+    <body class="content">
+        <h1>Read-me</h1>
+        <table title="Links" class="table-content">
+            <caption><h3>Links</h3></caption>
+            <td>
+                <th><a href="#About">About</a></th>
+                <th><a href="#License">License</a></th>
+                <th><a href="#Credits">Credits</a></th>
+                <th><a href="#GitHUb">GitHub</a></th>
+            </td>
+        </table>
+        <hr>
+        <br>
+        <div id="About" class="uarea">
+            <h1>About</h1>
+            <div class="div-content">
+                <p id="LicenseText">
+                    <ol>
+                        <li><h2>What is this?</h2><small>
+                            Is a simple game made with Python and PyGame, Using JPyDB.
+                        </small></li>
+                        <li><h2>I Can add Plugins?</h2><small>
+                            Yes, for the first time in my life, i created a game with support to Plugins/Mods.
+                        </small></li>
+                        <li><h2>I Can create Plugins?</h2><small>
+                            Yes, But you will need to follow all things into <a href="#License">LICENSE</a>.
+                        </small></li>
+                        <li><h2>I Can distribuite the game?</h2><small>
+                            Maybe, if we(MrJuaum or ChosenBit) give permission to do it, you can read <a href="#License">LICENSE</a> to more informartion.
+                        </small></li>
+                        <li><h2>The Plugins are free?</h2><small>
+                            Yes, all plugins need to be free.
+                        </small></li>
+                        <li><h2>Can plugins be harmful?</h2><small>
+                            Perhaps, it depends on where you download, who creates it and their intentions, please check if he needs to download any data (usually only downloads his icon), if you are in doubt consult our <a href="https://discord.gg/fb84sHDX7R" target="_blank">Discord server</a>
+                        </small></li>
+                    </ol>
+                <p>
+            </div>
+        </div>
+        <div id="License" class="uarea">
+            <h1>License</h1>
+            <div class="div-content">
+                <p id="LicenseText">
+                    <iframe src="./LICENSE" class="LoadFile"></iframe>
+                <p>
+            </div>
+        </div>
+        <div id="Credits" class="uarea">
+            <h1>Credits</h1>
+            <div class="div-content">
+                <p id="LicenseText">
+                    All credits is given to MrJuaumBR and ChosenBit.
+                    <br><br>
+                    Copyrights © 2023 MrJuaumBR and ChosenBit by <a href="#License">MIT License</a>
+                <p>
+            </div>
+        </div>
+        <div id="GitHub" class="uarea">
+            <h1>GitHub</h1>
+            <div class="div-content">
+                <p id="LicenseText">
+                    <a href="https://github.com/MrJuaumBR/SurvivorGame">GitHub Project</a>
+                    <div id="LoadReadme" class="scrollable bg-black fr-white">
+
+                    </div>
+                <p>
+            </div>
+        </div>
+        <script>
+            function load(){
+                $.get("https://raw.githubusercontent.com/MrJuaumBR/SurvivorGame/main/README.md", data=>{
+                    var element = document.getElementById("LoadReadme");
+                    var converter = new showdown.Converter();
+                    var html = converter.makeHtml(data);
+                    element.innerHTML = html;
+                });
+                
+            };
+
+            // var converter = new showdown.Converter();
+            // var md = '[**Showdown**](http://www.showdownjs.com) is *great*\n' +
+            //         'because:\n\n' +
+            //         ' - it\'s easy to use\n' +
+            //         ' - it\'s extensible\n' +
+            //         ' - works in the server and in the browser';
+            // var html = converter.makeHtml(md);
+            // console.log(html);
+            load()
+        </script>
+    </body>
+</html>
