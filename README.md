@@ -27,6 +27,18 @@
     - [x] Level
     - [x] Experience
     - [x] Life and Damage
+    - [ ] Menus
+        - [x] Level
+        - [x] Experience Bar
+        - [x] Life Bar
+        - [x] User name
+        - [ ] Inventory
+        - [ ] Character Skills
+    - [ ] Character Art
+        - [x] Idle
+        - [x] Colors Fix
+    - [x] Decorations
+
 
 # Addons/Plugins/Mods
 

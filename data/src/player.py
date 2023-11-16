@@ -5,16 +5,19 @@ import pickle
 
 TC = TimeConverter(DB)
 
-Animation_Y_Colors = {
-    'Green':0,
-    'Red':32,
-    'Blue':64,
-    'Yellow':96,
-    'Purple':128
+TranslateCharacter = {
+    'Man 1':{'Walk':{'up':[(0,48,16,16),(16,48,16,16),(32,48,16,16),],'down':[(0,0,16,16),(16,0,16,16),(32,0,16,16)],'right':[(0,32,16,16),(16,32,16,16),(32,32,16,16)],'left':[(0,16,16,16),(16,16,16,16),(32,16,16,16)],},'Idle':{'up':[(0,48,16,16)],'down':[(16,0,16,16)],'right':[(16,32,16,16)],'left':[(16,16,16,16)]},
+        'Dead':{
+
+        }
+    },
+    "Guy 1":{"Walk":{"up":[(48,48,16,16),(64,48,16,16),(80,48,16,16)],"down":[(48,0,16,16),(64,0,16,16),(80,0,16,16)],'right':[(48,32,16,16),(64,32,16,16),(80,32,16,16)],'left':[(48,16,16,16),(64,16,16,16),(80,16,16,16)],},"Idle":{"up":[(64,48,16,16),],"down":[(64,0,16,16),],'right':[(64,32,16,16),],'left':[(64,16,16,16),]},
+        "Dead":{}
+    },
 }
 
 class player(pyg.sprite.Sprite):
-    _layer = 1
+    _layer = 5
     saveable = ['name','health','maxhealth','speed','pos','_locked','_dead', 'Color','Level','Experience','points','attack','luck','defense','agility','inteligence']
 
     # GUIs
@@ -34,15 +37,14 @@ class player(pyg.sprite.Sprite):
 
         # Animation
         self.curr = 'Idle'
-        self.lastSide = 'Right'
+        self.lastSide = 'right'
         self.anim_frame = 0
-        self.Color = 'Green'
+        self.Color = 'Man 1'
+        self.animations = {'Walk':{'up':[],'left':[],'right':[],'down':[]},'Idle':{'up':[],'left':[],'right':[],'down':[]},'Dead':{'up':[],'left':[],'right':[],'down':[]}}
         self.animationsBuild()
 
         self.rect = Rect(self.pos[0],self.pos[1],self.size[0],self.size[1])
-        self.image = self.animations[self.curr][int(self.anim_frame)]
-        if self.lastSide != 'Right':
-            pyg.transform.flip(self.image,True,False)
+        self.image = self.animations[self.curr][self.lastSide][int(self.anim_frame)]
 
         # Status
             # State
@@ -76,38 +78,28 @@ class player(pyg.sprite.Sprite):
             # Others
         self.damage = 5
     def animationsBuild(self):
-        self.animations = {'Idle':[],'Walk':[],'Dead':[]}
-        s = spritesheet("."+TEXTURES_PATH+'/players.png')
-        self.animations['Walk'] = s.images_at([
-            (1,Animation_Y_Colors[self.Color]+1,31,31),
-            (33,Animation_Y_Colors[self.Color]+1,31,31)
-        ],0)
-        self.animations['Dead'] = s.images_at([
-            (65, Animation_Y_Colors[self.Color]+1,31,31),
-            (97, Animation_Y_Colors[self.Color]+1,31,31)
-        ],0)
-        self.animations['Idle'] = s.images_at([
-            (129,Animation_Y_Colors[self.Color]+1,31,31),
-            (161,Animation_Y_Colors[self.Color]+1,31,31)
-        ],0)
-
+        self.animations = {'Walk':{'up':[],'left':[],'right':[],'down':[]},'Idle':{'up':[],'left':[],'right':[],'down':[]},'Dead':{'up':[],'left':[],'right':[],'down':[]}}
+        s = spritesheet("."+PLAYERS_SPRITESHEET)
+        t = TranslateCharacter[self.Color]
+        for state in t.keys():
+            for frame in t[state].keys():
+                for f in t[state][frame]:
+                    img = s.image_at(f,0)
+                    index = t[state][frame].index(f)
+                    self.animations[state][frame].insert(index,img)
     def animate(self):
         if not self._dead:
             if self.move.x != 0:
                 self.curr = 'Walk'
-                self.lastSide = 'Right' if self.move.x > 0 else 'Left'
             elif self.move.y != 0:
                 self.curr = 'Walk'
-                self.lastSide = 'Right' if self.move.y > 0 else 'Left'
             else:
                 self.curr = 'Idle'
             self.anim_frame += 0.15
-            if self.anim_frame >= len(self.animations[self.curr]):
+            if self.anim_frame >= len(self.animations[self.curr][self.lastSide]):
                 self.anim_frame = 0
-            self.image = self.animations[self.curr][int(self.anim_frame)]
-            if self.lastSide != 'Right':
-                self.image = pyg.transform.flip(self.image,True,False)
-                pass
+            self.image = self.animations[self.curr][self.lastSide][int(self.anim_frame)]
+            self.image = pyg.transform.scale(self.image, self.size)
         else:
             self.curr = "Dead"
 
@@ -177,8 +169,25 @@ class player(pyg.sprite.Sprite):
                 self._BuildOpen = not self._BuildOpen
                 pyg.time.delay(100)
 
+    def ConvertMove(self):
+        if self.move.x != 0:
+            if self.move.x > 0:
+                self.lastSide = 'right'
+            elif self.move.x < 0:
+                self.lastSide = 'left'
+            else:
+                self.lastSide = self.lastSide
+        else:
+            if self.move.y > 0:
+                self.lastSide = 'down'
+            elif self.move.y < 0:
+                self.lastSide = 'up'
+            else:
+                self.lastSide = self.lastSide
+
     def movement(self):
         if not self._locked:
+            self.ConvertMove()
             self.rect.x += self.move.x * self.speed
             self.rect.y += self.move.y * self.speed
 
@@ -329,3 +338,6 @@ class player(pyg.sprite.Sprite):
         for item in self.saveable:
             self.__dict__[item] = ddata[item]
         self.rect.topleft = self.pos
+
+        # Update Things
+        self.animationsBuild()

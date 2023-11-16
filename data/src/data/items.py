@@ -2,7 +2,7 @@ from ..config import *
 from ..handler.timerConverter import TimeConverter
 TC = TimeConverter(DB)
 
-TILES = "."+TEXTURES_PATH+'/tiles.png'
+TILES = "."+TILESET
 
 class Tile(pyg.sprite.Sprite):
     _layer = 2
@@ -56,38 +56,59 @@ class Tile(pyg.sprite.Sprite):
     def update(self, player) -> None:
         self.collision(player)
         return super().update()
-    
-class Magma(Tile):
-    _layer = 2
-    _collision = True
-    _action_delay = TC.getTime(.25)
-    name = 'Magma'
-    def __init__(self, XY, *groups) -> None:
-        super().__init__(XY, *groups)
-        self.image = pyg.Surface((32,32))
-        self.image.fill((200,100,0))
 
-    def action(self, player):
-        player.takeDamage(25)
-
-class WoodFloor(Tile):
+""" DECORATION TILES"""
+class Decoration1(Tile):
     _layer = 1
     _collision = False
-    _action = False
-    _action_delay = TC.getTime(1)
-    _action_delay_counter = 0
     _type = 'tile'
-    _build = True
-    name = 'Wood Floor'
+    _build = False
+    name = 'Decoration1'
     def __init__(self, XY, *groups) -> None:
         super().__init__(XY, *groups)
-        self.image = pyg.transform.scale(spritesheet(TILES).image_at((1,65,31,31),0),(32,32))
+        self.image = pyg.transform.scale(spritesheet(TILES).image_at((96,64,16,16),-1),(32,32))
+
+class Decoration2(Tile):
+    _layer = 1
+    _collision = False
+    _type = 'tile'
+    _build = False
+    name = 'Decoration2'
+    def __init__(self, XY, *groups) -> None:
+        super().__init__(XY, *groups)
+        self.image = pyg.transform.scale(spritesheet(TILES).image_at((96,80,16,16),-1),(32,32))
+
+class Decoration3(Tile):
+    _layer = 1
+    _collision = False
+    _type = 'tile'
+    _build = False
+    name = 'Decoration3'
+    def __init__(self, XY, *groups) -> None:
+        super().__init__(XY, *groups)
+        self.image = pyg.transform.scale(spritesheet(TILES).image_at((112,80,16,16),-1),(32,32))
+
+class Decoration4(Tile):
+    _layer = 1
+    _collision = False
+    _type = 'tile'
+    _build = False
+    name = 'Decoration4'
+    def __init__(self, XY, *groups) -> None:
+        super().__init__(XY, *groups)
+        self.image = pyg.transform.scale(spritesheet(TILES).image_at((0,80,16,16),-1),(32,32))
+
+class Decoration5(Tile):
+    _layer = 6
+    _collision = False
+    _type = 'tile'
+    _build = False
+    name = 'Decoration5'
+    def __init__(self, XY, *groups) -> None:
+        super().__init__(XY, *groups)
+        self.image = pyg.transform.scale(spritesheet(TILES).image_at((0,96,16,16),-1),(32,32))
 
 """                         END                         """
 BUILD_ITEMS = [
-    WoodFloor,
-    WoodFloor,
-    WoodFloor,
-    WoodFloor,
-    WoodFloor,
+    
 ]

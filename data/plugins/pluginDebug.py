@@ -77,8 +77,11 @@ class _Plugin(_BasePlugin):
             self.pme.draw_text((175,155),f'Player Lvl: {player.Level}, Experience: {player.Experience}/{player.Level * 100}',4, (0,0,0),(255,255,255))
             self.pme.draw_text((60, 200),f'Attack: {player.attack}, Defense: {player.defense}, Agility: {player.agility}, Inteligence: {player.inteligence}, Luck: {player.luck}',2, (0,0,0),(255,255,255))
             self.pme.draw_text((60, 250),f'Speed: {player.speed}, Damage: {player.damage}',2, (0,0,0),(255,255,255))
+            self.pme.draw_text((60,300),f'Character Color: {player.Color}',2, (0,0,0),(255,255,255))
             if self.pme.draw_button((60,155),'+ 1 Level',1,'white','green'):
                 player.Experience += player.Level * 100
+            if self.pme.draw_button((350,155),'+ 100 Exp',1,'white','green'):
+                player.Experience += 100
             if player._dead:
                 if self.pme.draw_button((60,self.pme.screen.get_size()[1]-150),'Revive',1,'white','green'):
                     player.health = player.maxhealth
@@ -98,7 +101,7 @@ class _Plugin(_BasePlugin):
 
         offset = camera.convert_offset((player.rect.centerx,player.rect.top))
         self.pme.draw_text((offset[0]-10,offset[1]-10),f'Health: {player.health}/{player.maxhealth}',4, (0,0,0),(255,255,255))
-        self.pme.draw_text((offset[0]-10,offset[1]-30),f'Name: {player.name[:24]}',4, (0,0,0),(255,255,255))
+        self.pme.draw_text((offset[0]-10,offset[1]-30),f'Name: {player.name[:12]}',4, (0,0,0),(255,255,255))
 
         if objpos.collidepoint(pygame.mouse.get_pos()):
             if pygame.mouse.get_pressed(3)[0]:

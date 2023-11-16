@@ -59,6 +59,8 @@ def gameLoop():
         
         ShowFPS() # Show FPS
         pme.draw_rect((0,0),(10,pme.screen.get_size()[1]),RND_COLOR)
+        SCREEN.blit(pyg.transform.scale(icon,(256,256)),(SCREEN.get_size()[0]-304, 32))
+        pme.draw_text((SCREEN.get_size()[0]-(304*2),32),GAME_TITLE,1,(0,0,0),antialias=True)
         if pme.draw_button((50,50),'PLAY',1,'white','green'):
             LoadSaveScreen()
         elif pme.draw_button((50,100),'OPTIONS',1,'white','blue'):

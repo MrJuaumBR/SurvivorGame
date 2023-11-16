@@ -1,15 +1,15 @@
 from .config import *
 from .game import game, player
-from .player import Animation_Y_Colors
 
 def createSave() -> bool:
     run = True
     CharName = ''
     TX_BOX = False
     color_ind = 0
-    Colors = []
-    for key in Animation_Y_Colors.keys():
-        Colors.append(key)
+    Colors = PLAYERS
+    plr = player()
+    plr.name = CharName
+    plr.Color = Colors[color_ind]
     while run:
         # Draw Components
         pme.draw_text((25,50),'Character Name: ', 2, 'black')
@@ -19,11 +19,14 @@ def createSave() -> bool:
             pme.draw_text((25,125),'Character Name must be at least 5 characters', 2, 'red')
 
         pme.draw_text((25,165),'Character Color:', 2, 'black')
-        color_ind = pme.draw_select((125,205),Colors,color_ind, 1, ((255,255,255),Colors[color_ind]))
+        color_ind = pme.draw_select((125,205),Colors,color_ind, 1, ((255,255,255),'black'))
+
+        plr.Color = Colors[color_ind]
+        plr.animationsBuild()
+        pme.draw_image(pyg.transform.scale(plr.animations['Idle']['down'][0],(248,248)),(25,250))
 
         if pme.draw_button((25,SCREEN.get_size()[1]-100),'SAVE',2,'white','green'):
             if len(CharName) >= 5 and len(CharName) <= 12:
-                plr = player()
                 plr.name = CharName
                 plr.Color = Colors[color_ind]
                 x = plr.Save(None)

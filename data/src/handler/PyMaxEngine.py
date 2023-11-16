@@ -87,6 +87,9 @@ class PyMaxEngine():
     def v(self):
         """Get version number"""
         return "0.3"
+    def set_icon(self, icon:pyg.surface):
+        """Set icon"""
+        pyg.display.set_icon(icon)
 
     def create_screen(self,size:tuple or list,**kwargs):
         """Create a screen and return, TIP: Don't use Fullscreen windows or use Scaled(auto)"""
@@ -252,7 +255,8 @@ class PyMaxEngine():
 
     def draw_bar(self,Position: tuple or list, Size: tuple or list,CurValue:int,maxValue:int,colors=((0,0,0),(200,10,10),(0,0,0)),text="",textfont=0):
         """Draw a bar, with max value, can be used as health bar."""
-        X = CurValue / maxValue
+        tryDiv = lambda CurValue, maxValue: CurValue/maxValue if CurValue > 0 else 0
+        X = tryDiv(CurValue,maxValue)
         self.draw_rect(Position,(Size[0]*X,Size[1]),colors[1])
         self.draw_rect(Position,Size,colors[0],3)
         if text != "":

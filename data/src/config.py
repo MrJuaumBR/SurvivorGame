@@ -6,6 +6,8 @@ import webbrowser
 global TRACKS, VERSION, BUILD_TILES
 
 VERSION = 0.1
+GAME_TITLE = "Survivor Game"
+WORLD_MAX_SIZE = (2000,2000)
 
 from data.plugins.pluginHandler import Loader
 
@@ -15,6 +17,58 @@ if not os.path.exists('./save/'):
 DATABASE_PATH = "/save/saves"
 TEXTURES_PATH = "/data/assets"
 ICONS_PATH    = TEXTURES_PATH + "/icons"
+PLAYERS_SPRITESHEET = TEXTURES_PATH + "/player_spritesheet.png"
+TILESET = TEXTURES_PATH + "/tileset.png"
+EMOTIONSET = TEXTURES_PATH + "/emotions.png"
+PLAYERS = [
+    "Man 1",
+    "Guy 1",
+    "Guy 2",
+    "Old Man 1",
+    "Guy 3",
+    "Kid 1",
+    "Knight 1",
+    "Old Man 2",
+    "Woman 1",
+    "Woman 2",
+    "Skull 1",
+]
+EMOTIONS = [
+    "Alert",
+    "Question",
+    "Croon",
+    "Heart",
+    "Angry",
+    "Nervous",
+    "Confused",
+    "Thinking",
+    "Partying",
+    "Drowsy"
+]
+EMOTIONS_POSITIONS = {
+    "Alert":[(0,0,16,16),(16,0,16,16),(32,0,16,16),(48,0,16,16),(64,0,16,16),(80,0,16,16),(96,0,16,16)],
+    "Question":[(0,16,16,16),(16,16,16,16),(32,16,16,16),(48,16,16,16),(64,16,16,16),(80,16,16,16),(96,16,16,16)],
+    "Croon":[],
+    "Heart":[],
+    "Angry":[],
+    "Nervous":[],
+    "Confused":[],
+    "Thinking":[],
+    "Partying":[],
+    "Drowsy":[]
+}
+EMOTIONS_SHEET = {
+    "Alert":[],
+    "Question":[],
+    "Croon":[],
+    "Heart":[],
+    "Angry":[],
+    "Nervous":[],
+    "Confused":[],
+    "Thinking":[],
+    "Partying":[],
+    "Drowsy":[]
+}
 
 SOUNDS_PATH   = "/data/musics"
 
@@ -30,8 +84,8 @@ DEFAULT_SCREEN_SIZE = (DF_WIDTH, DF_HEIGHT)
 
 from .handler.database import DB
 from .handler.PyMaxEngine import *
-from .handler.spritesheet import spritesheet
 from .handler.timerConverter import TimeConverter
+from .handler.spritesheet import spritesheet
 
 def CreateTables():
     DB.database.create_table('saves',[('data',bytes,False)])
@@ -64,6 +118,39 @@ if CONFIG['FULLSCREEN']:
     SCREEN_FLAGS = FULLSCREEN|SCALED
 
 SCREEN = pme.create_screen(DEFAULT_SCREEN_SIZE, flags=SCREEN_FLAGS)
+# Get Icon
+if not os.path.exists(f'.{ICONS_PATH}/png/icons.png'):
+    icon = pyg.Surface((32,32))
+    icon.fill((255,255,255))
+    print('Icon Null')
+else:
+    Icons_Pos = [
+        (47,70),
+        (205,70),
+        (371,70),
+        (523,70), # Y2 = 220
+    ]
+    try:
+        s = spritesheet(f'.{ICONS_PATH}/png/icons.png')
+        rnd = random.choice(Icons_Pos)
+        icon = s.image_at((rnd[0],rnd[1],128,128),255)
+        icon = pyg.transform.scale(icon, (32,32))
+    except Exception as err:
+        print(err)
+# Load Icon
+try:
+    pme.set_icon(icon)
+except:
+    pass
+# Load Emotions
+try:
+    for item in EMOTIONS_POSITIONS.keys():
+        for pos in EMOTIONS_POSITIONS[item]:
+            s = spritesheet("."+EMOTIONSET)
+            EMOTIONS_SHEET[item].append(s.image_at(pos,0))
+except Exception as err:
+    raise(err)
+
 
 CLOCK = pyg.time.Clock()
 
