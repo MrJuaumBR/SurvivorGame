@@ -16,9 +16,11 @@ TranslateCharacter = {
     },
 }
 
+TC = TimeConverter(DB)
+
 class player(pyg.sprite.Sprite):
     _layer = 5
-    saveable = ['name','health','maxhealth','speed','pos','_locked','_dead', 'Color','Level','Experience','points','attack','luck','defense','agility','inteligence']
+    saveable = ['name','health','maxhealth','speed','LastExperience','W','pos','_locked','_dead', 'Color','Level','Experience','points','attack','luck','defense','agility','inteligence']
 
     # GUIs
     _StatusOpen = False
@@ -27,8 +29,13 @@ class player(pyg.sprite.Sprite):
     _BuildPage = 1
     _BuildXSHIFT = 90
 
+    W = {}
 
     _type = 'player'
+
+    # Waiters
+    _Wait_time_levelUpSong = TC.getTime(1)
+    C_Wait_time_levelUpSong = 0
     def __init__(self, XY=(0,0),*groups) -> None:
         super().__init__(*groups)
         self.name = ""
@@ -63,7 +70,9 @@ class player(pyg.sprite.Sprite):
             # Level
         self.Level = 1
         self.Experience = 0
-
+        self.LastExperience = self.Experience
+            # Money
+        self.money = 100
             # Warns
         self.warns = []
         self.ClearAll = 0
@@ -124,6 +133,14 @@ class player(pyg.sprite.Sprite):
             self.Level += 1
             self.points += 3
             self.addWarn(f'Level up to: {self.Level}','Green')
+            if self.C_Wait_time_levelUpSong <= 0:
+                s= pyg.mixer.Sound(TRACKS['level-up'])
+                s.set_volume(CONFIG['VOLUME']/100)
+                s.play()
+                C_Wait_time_levelUpSong=self._Wait_time_levelUpSong
+        if self.Experience > self.LastExperience:
+            self.addWarn(f'Got {self.Experience-self.LastExperience} Exp','Green')
+            self.LastExperience = self.Experience
 
     def takeDamage(self, damage:float):
         if not self._dead:
@@ -218,6 +235,10 @@ class player(pyg.sprite.Sprite):
                 self.speed = 5 + self.agility * 0.1
                 if self.speed > 15:
                     self.speed = 15
+
+    def WaitingManager(self):
+        if self.C_Wait_time_levelUpSong > 0:
+            self.C_Wait_time_levelUpSong -= 1
 
     def update(self) -> None:
         self.Input()

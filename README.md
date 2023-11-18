@@ -25,7 +25,10 @@
 - [x] In Game
     - [x] Status
     - [x] Level
+        - [x] Warn When Level Up
+        - [x] Sound When Level Up
     - [x] Experience
+        - [x] Warn When Get
     - [x] Life and Damage
     - [ ] Menus
         - [x] Level
@@ -38,6 +41,8 @@
         - [x] Idle
         - [x] Colors Fix
     - [x] Decorations
+    - [x] Trees
+    - [x] Fixed Mixer Not Initilized(Error)
 
 
 # Addons/Plugins/Mods

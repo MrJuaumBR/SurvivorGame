@@ -57,11 +57,23 @@ class Tile(pyg.sprite.Sprite):
         self.collision(player)
         return super().update()
 
+""" TILES """
+class Tree(Tile):
+    _layer = 1
+    _collision = True
+    _build = False
+    name = "Tree"
+    def __init__(self, XY, *groups) -> None:
+        super().__init__(XY, *groups)
+        self.image = pyg.transform.scale(spritesheet(TILES).image_at((16,64,32,32),-1),(64,64))
+        self.rect = Rect(XY[0],XY[1],32,32)
+    
+
 """ DECORATION TILES"""
 class Decoration1(Tile):
     _layer = 1
     _collision = False
-    _type = 'tile'
+    _type = 'decoration'
     _build = False
     name = 'Decoration1'
     def __init__(self, XY, *groups) -> None:
@@ -71,7 +83,7 @@ class Decoration1(Tile):
 class Decoration2(Tile):
     _layer = 1
     _collision = False
-    _type = 'tile'
+    _type = 'decoration'
     _build = False
     name = 'Decoration2'
     def __init__(self, XY, *groups) -> None:
@@ -81,7 +93,7 @@ class Decoration2(Tile):
 class Decoration3(Tile):
     _layer = 1
     _collision = False
-    _type = 'tile'
+    _type = 'decoration'
     _build = False
     name = 'Decoration3'
     def __init__(self, XY, *groups) -> None:
@@ -101,7 +113,7 @@ class Decoration4(Tile):
 class Decoration5(Tile):
     _layer = 6
     _collision = False
-    _type = 'tile'
+    _type = 'decoration'
     _build = False
     name = 'Decoration5'
     def __init__(self, XY, *groups) -> None:

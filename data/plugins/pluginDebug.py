@@ -2,6 +2,7 @@
 File: pyplugin
 """
 from .basePlugin import _Plugin as _BasePlugin
+from ..src.world import *
 import requests
 import os
 import pygame
@@ -68,7 +69,7 @@ class _Plugin(_BasePlugin):
         if self.pme.draw_button((10,self.pme.screen.get_size()[1]-125),'Delete Saves',2,'white','red'):
             self.gameData.DB.database.delete_all('saves')
 
-    def drawGameMenu(self, player, camera):
+    def drawGameMenu(self, player, camera,World:World):
         if self.game_show_menu:
             self.pme.draw_rect((50,50),(self.pme.screen.get_size()[0]-100,self.pme.screen.get_size()[1]-100),(0,0,0,128))
             self.pme.draw_text((60,55),f'Debug Menu',1, (0,0,0),(255,255,255))
@@ -78,6 +79,12 @@ class _Plugin(_BasePlugin):
             self.pme.draw_text((60, 200),f'Attack: {player.attack}, Defense: {player.defense}, Agility: {player.agility}, Inteligence: {player.inteligence}, Luck: {player.luck}',2, (0,0,0),(255,255,255))
             self.pme.draw_text((60, 250),f'Speed: {player.speed}, Damage: {player.damage}',2, (0,0,0),(255,255,255))
             self.pme.draw_text((60,300),f'Character Color: {player.Color}',2, (0,0,0),(255,255,255))
+            if self.pme.draw_button((60,359),'+ 1 Minute',1,'white','green'):
+                World.Minute += 1
+            if self.pme.draw_button((225,359),'+ 1 Hour',1,'white','green'):
+                World.Hour += 1
+            if self.pme.draw_button((375,359),'+ 1 Day',1,'white','green'):
+                World.Day += 1
             if self.pme.draw_button((60,155),'+ 1 Level',1,'white','green'):
                 player.Experience += player.Level * 100
             if self.pme.draw_button((350,155),'+ 100 Exp',1,'white','green'):
@@ -93,6 +100,7 @@ class _Plugin(_BasePlugin):
     def GameLoop(self, defined:list or dict):
         player = self.varsGet(defined, 'Plr')
         camera = self.varsGet(defined, 'cam')
+        world = self.varsGet(defined, 'W')
         self.pme.draw_text((10,10),f'Game Version: {self.GameVersion}',4, (0,0,0),(255,255,255))
         obj = pygame.transform.scale(pygame.image.load(f'{self.AssetsFolder}/{self.Name.replace(" ", "")}/{self.Icon}'),(32,32))
         objpos = obj.get_rect()
@@ -108,7 +116,7 @@ class _Plugin(_BasePlugin):
                 self.game_show_menu = not self.game_show_menu
                 pygame.time.delay(100)
         if self.game_show_menu:
-            self.drawGameMenu(player, camera)
+            self.drawGameMenu(player, camera, world)
 
 class Plugin(_Plugin):
     def __init__(self, gameData) -> None:

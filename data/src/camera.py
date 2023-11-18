@@ -51,9 +51,15 @@ class Camera(pyg.sprite.Group):
         self.internal_surf.fill((100,195,100))
         # active elements
         for sprite in sorted(self.sprites(),key=lambda sprite: sprite.layer):
-            offset_pos = sprite.rect.topleft - self.offset + self.internal_offset
-            self.internal_surf.blit(sprite.image, offset_pos)
-            sprite.offset_pos = offset_pos
+            if sprite._type in ['decoration']:
+                offset_pos = sprite.rect.topleft - self.offset + self.internal_offset
+                self.internal_surf.blit(sprite.image, offset_pos)
+                sprite.offset_pos = offset_pos
+        for sprite in sorted(self.sprites(),key=lambda sprite: sprite.rect.centery):
+            if sprite._type in ['tile','player','enemy']:
+                offset_pos = sprite.rect.topleft - self.offset + self.internal_offset
+                self.internal_surf.blit(sprite.image, offset_pos)
+                sprite.offset_pos = offset_pos
         
         scaled_surf = pyg.transform.scale(self.internal_surf, self.internal_surf_size_vector*self.zoom_scale)
         scaled_rect = scaled_surf.get_rect(center=(self.half_w,self.half_h))

@@ -3,6 +3,7 @@ from .camera import *
 from .player import player
 from .data.items import *
 from .data.enemys import *
+from .world import *
 
 def loadBuild():
     for x,item in enumerate(BUILD_ITEMS,0):
@@ -18,6 +19,8 @@ def game(playerId):
     cam = Camera()
     Plr = player((550,550),cam)
     Plr.Load(DB.database.get_value('saves','data',id=playerId))
+    W:World = World()
+    W.Load(Plr.W.__dict__)
     def ex():
         DB.database.update_value('saves','data',playerId,Plr.Save(cam))
         DB.database.save()
@@ -28,9 +31,17 @@ def game(playerId):
         for i in range(random.randint(10, 25)):
             Enemy((random.randint(0, 2000), random.randint(0, 2000)), cam)
         
+        # Friendly
+        for i in range(random.randint(10,25)):
+            Chicken((random.randint(0, 2000), random.randint(0, 2000)), cam)
+
         # Decorations
         for i in range(random.randint(100, 250)):
             random.choice([Decoration1,Decoration2,Decoration3,Decoration4,Decoration5])((random.randint(0, 2000), random.randint(0, 2000)), cam)
+        
+        # Trees
+        for i in range(random.randint(75,175)):
+            random.choice([Tree])((random.randint(0, 2000), random.randint(0, 2000)), cam)
     generateMap()
     MenuOpen = False
     def DrawWarns():
@@ -67,6 +78,7 @@ def game(playerId):
             pme.draw_text((10,SY-95),Plr.name[:12],2,'white',antialias=True)
             pme.draw_text((10,SY-65),f'Level: {Plr.Level}',2,'white',antialias=True)
             pme.draw_bar((10,SY-40),(200,20),Plr.Experience,Plr.Level*100,[pme.colors['Maroon'],pme.colors['BlueViolet'],(0,0,0)],f'{round(Plr.Experience)}/{round(Plr.Level*100)} ({round((Plr.Experience/(Plr.Level*100)*100))}%)',2)
+            pme.draw_text((32,SY-145),f'{W.GetTime(["H","M"])} - {W.GetDate()}',2,'white',antialias=True)
             if SCREEN.blit(EMOTIONS_SHEET['Alert'][0],(10,SY-145)).collidepoint(pyg.mouse.get_pos()):
                 if pyg.mouse.get_pressed(3)[0]:
                     DrawEmotions = not DrawEmotions
@@ -79,6 +91,7 @@ def game(playerId):
     while run:
         DrawWarns()
         MenuOpen,DrawEmotions = DrawMenu(MenuOpen,DrawEmotions)
+        pme.draw_rect((0,0),pme.screen.get_size(),(0,0,0,W.getAlpha()))
         if ShowFPS(0): # Exit by clicking in X on screen
             pyg.time.delay(100)
             run = ex()
@@ -95,6 +108,7 @@ def game(playerId):
         Plr.drawUis(BUILD_TILES)
         pme.update()
         cam.update(Plr)
+        W.AutoSkipping()
 
         # Draw
         SCREEN.fill('black')

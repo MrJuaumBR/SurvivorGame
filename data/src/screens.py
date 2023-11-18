@@ -1,5 +1,6 @@
 from .config import *
 from .game import game, player
+from .world import *
 
 def createSave() -> bool:
     run = True
@@ -17,6 +18,8 @@ def createSave() -> bool:
 
         if len(CharName) < 5:
             pme.draw_text((25,125),'Character Name must be at least 5 characters', 2, 'red')
+        elif len(CharName) >= 12:
+            pme.draw_text((25,125),'Character Name can have only 12 characters', 2, 'red')
 
         pme.draw_text((25,165),'Character Color:', 2, 'black')
         color_ind = pme.draw_select((125,205),Colors,color_ind, 1, ((255,255,255),'black'))
@@ -29,6 +32,7 @@ def createSave() -> bool:
             if len(CharName) >= 5 and len(CharName) <= 12:
                 plr.name = CharName
                 plr.Color = Colors[color_ind]
+                plr.W = World()
                 x = plr.Save(None)
                 DB.database.add_value('saves','data',value=x)
                 DB.save()
@@ -278,6 +282,50 @@ def Legals():
     Y_SHIFT = 50
     while run:
         pme.draw_text((20,10),'Legals',2,'black',antialias=True)
+        pme.draw_rect((20,50),(SCREEN.get_size()[0]-40,SCREEN.get_size()[1]-100),(0,0,0))
+        x = 0
+        for line in textl:
+            if line != '\n':
+                if not (Y_SHIFT+(15*x) > SCREEN.get_size()[1]-100) and not (Y_SHIFT+(15*x) < 50):
+                    if len(line) > 90:
+                        pme.draw_text((25,Y_SHIFT+(15*x)),line[:90].replace('\n',''),4,'white',antialias=True)
+                        x+= 1
+                    pme.draw_text((25,Y_SHIFT+(15*x+1)),line[90:].replace('\n',''),4,'white',antialias=True)
+                    x += 1
+            else:
+                x+= 1
+        
+        BAR_Y_SIZE = (SCREEN.get_size()[1]-100)//len(textl)
+        BAR_Y_POS = Y_SHIFT
+        if BAR_Y_POS < 55:
+            BAR_Y_POS = 55
+        if BAR_Y_POS > SCREEN.get_size()[1]-(100+BAR_Y_SIZE):
+            BAR_Y_POS = SCREEN.get_size()[1]-(100+BAR_Y_SIZE)
+        pme.draw_rect((SCREEN.get_size()[0]-55,BAR_Y_POS),(15,BAR_Y_SIZE),(200,200,200,200))
+        if ShowFPS(0):
+            run = False
+        for ev in pme.events():
+            if ev.type == QUIT:
+                run = False
+            elif ev.type == MOUSEWHEEL:
+                Y_SHIFT += -ev.y * 5
+
+        pme.update()
+        pme.screen.fill('white') # Fill SCreen
+
+def News():
+    run = False
+    Y_SHIFT = 50
+    def Format():
+        r = []
+        for new in PUSH_NEWS['news']:
+            r.append(f'Title: {new["title"]}')
+            r.append(f'Content: {new["content"]}')
+            r.append(f'Posted in: {new["date"]}')
+        return r
+    textl = Format()
+    while run:
+        pme.draw_text((20,10),'News',2,'black',antialias=True)
         pme.draw_rect((20,50),(SCREEN.get_size()[0]-40,SCREEN.get_size()[1]-100),(0,0,0))
         x = 0
         for line in textl:

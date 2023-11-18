@@ -4,6 +4,7 @@ class TimeConverter():
     def __init__(self, DB) -> None:
         self.config = dict(DB.database.get_value('config','data',0))
         self.FPS = self.config['FPS']
+        self._define()
 
 
     def _define(self):

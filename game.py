@@ -71,6 +71,8 @@ def gameLoop():
             pme.quit()
         elif pme.draw_button((200,SCREEN.get_size()[1]-75),'LEGALS',2,'white','brown'):
             Legals()
+        elif pme.draw_button((275,SCREEN.get_size()[1]-50),'NEWS',2,'white','brown'):
+            News()
         elif pme.draw_button((200,SCREEN.get_size()[1]-50),'GitHub',2,'white','black',True):
             webbrowser.open('https://github.com/MrJuaumBR/SurvivorGame')
             pyg.time.delay(100)

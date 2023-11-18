@@ -1,7 +1,10 @@
+import json
 import os
 import random
 import importlib
 import webbrowser
+
+import requests
 
 global TRACKS, VERSION, BUILD_TILES
 
@@ -111,6 +114,11 @@ BUILD_TILES = {
 # Setup Game
 pyg.init()
 
+pyg.mixer.init()
+
+# Load Volume Config
+pyg.mixer.music.set_volume(CONFIG['VOLUME']/100)
+
 pme = PyMaxEngine()
 
 SCREEN_FLAGS = SCALED
@@ -151,10 +159,12 @@ try:
 except Exception as err:
     raise(err)
 
-
 CLOCK = pyg.time.Clock()
 
-TRACKS = {'ingame':f'.{SOUNDS_PATH}/ambientguitar.wav'}
+PUSH_NEWS = eval(requests.get('https://potatogameleague.jpgamesbr.repl.co/api/news.json').content)
+
+
+TRACKS = {'ingame':f'.{SOUNDS_PATH}/ambientguitar.wav','level-up':f'.{SOUNDS_PATH}/levelup.mp3'}
 
 FPS_FONT = pme.create_sysFont('arial',14,True,True)
 def ShowFPS(t=None):
