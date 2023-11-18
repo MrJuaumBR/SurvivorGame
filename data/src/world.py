@@ -6,17 +6,12 @@ class World():
     Year = 5
     Hour = 0
     Minute = 0
-    Second = 0
-    Wait_Time = TimeConverter(DB).getTime(0.05)
-    def SkipSecond(self):
+    Wait_Time = TimeConverter(DB).getTime(0.25)
+    def SkipMinute(self):
         self.Wait_Time -= 1
         if self.Wait_Time <= 0:
-            self.Second += 1
-            self.Wait_Time = TimeConverter(DB).getTime(0.05)
-            if self.Second >= 60:
-                self.Minute += 1
-                self.Second = 0
-    def SkipMinute(self):
+            self.Minute += 1
+            self.Wait_Time = TimeConverter(DB).getTime(0.25)
         if self.Minute >= 60:
             self.Hour += 1
             self.Minute = 0
@@ -35,7 +30,6 @@ class World():
             self.Month = 1
     
     def AutoSkipping(self):
-        self.SkipSecond()
         self.SkipMinute()
         self.SkipHour()
         self.SkipDay()
@@ -57,24 +51,14 @@ class World():
             h = f'{self.Minute}'
         return h
     
-    def GetSeconds(self) -> str:
-        h = ''
-        if self.Second < 10:
-            h = f'0{self.Second}'
-        else:
-            h = f'{self.Second}'
-        return h
     
-    def GetTime(self,format:list=['H','M','S']) -> str:
+    def GetTime(self,format:list=['H','M']) -> str:
         r = ''
         if 'H' in format:
             IsMinutes = lambda: ':' if 'M' in format else ''
             r += f'{self.GetHour()}{IsMinutes()}'
         if 'M' in format:
-            IsSeconds = lambda: ':' if 'S' in format else ''
-            r += f'{self.GetMinute()}{IsSeconds()}'
-        if 'S' in format:
-            r += f'{self.GetSeconds()}'
+            r += f'{self.GetMinute()}'
         return r
     
     def GetDate(self,format:list=['D','M','Y']) -> str:
@@ -95,21 +79,20 @@ class World():
         Max = 200
         Min = 1
 
-        Alpha_Time_Fix = 6
+        if self.Hour < 6:
+            Alpha_Percentage = 1
+        elif self.Hour >= 11:
+            if self.Hour >= 17:
+                Alpha_Percentage = self.Hour/24
+            else:
+                Alpha_Percentage = Min/200
+        else:
+            Alpha_Percentage = Min/200
 
-        Alpha_Hour_Fix = lambda hour: hour if hour < 24 else Alpha_Time_Fix
-
-        Alpha_Percentage = Alpha_Hour_Fix((self.Hour+Alpha_Time_Fix))/24 # Percentage
-
-        Alpha = int(Max * Alpha_Percentage)
-        if Alpha >= Max:
-            Alpha = Max
-        elif Alpha < Min:
+        Alpha = Max*Alpha_Percentage
+        if Alpha < Min:
             Alpha = Min
-        if not (self.Hour > 17):
-            Alpha = 0
-        if not (self.Hour < 6) and self.Hour > 0:
-            Alpha = 0
+        
         return Alpha
 
     def Load(self,data:dict):

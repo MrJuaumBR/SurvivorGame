@@ -53,7 +53,7 @@ def createSave() -> bool:
             return False
 
         pme.update()
-        pme.screen.fill('white') # Fill SCreen
+        pme.screen.fill((216, 211, 192)) # Fill SCreen
         CLOCK.tick(CONFIG['FPS'])
 
 def LoadSaveScreen():
@@ -124,7 +124,7 @@ def LoadSaveScreen():
             run = False
 
         pme.update()
-        pme.screen.fill('white') # Fill SCreen
+        pme.screen.fill((216, 211, 192)) # Fill SCreen
         CLOCK.tick(CONFIG['FPS'])
         
 def options():
@@ -173,7 +173,7 @@ def options():
         
         
         pme.update()
-        pme.screen.fill('white') # Fill SCreen
+        pme.screen.fill((216, 211, 192)) # Fill SCreen
         CLOCK.tick(CONFIG['FPS'])
 
 def ModsPlugins():
@@ -212,11 +212,16 @@ def ModsPlugins():
                 pme.draw_text(XY,f"{i} - {pluginName[:32]}",1, (255,255,255),antialias=True)
                 pme.draw_text((XY[0],XY[1]+50),f"{plugin.Description[:65]}",4, (255,255,255),antialias=True)
                 deleteBtn = pme.draw_button((pme.screen.get_size()[0]-160,XY[1]+100),"Delete",2,'white','red',True)
-                authorBtn = pme.draw_button((XY[0]+5,XY[1]+30),f"By: {plugin.Author[:32]}",2,'white')
+
+                WillRedir = lambda plugin: f"Will Redirect you to: {plugin.AuthorUrl}" if plugin.AuthorUrl != '' else "This plugin doesn't have a AuthorUrl"
+                RedTip = Tip(WillRedir(plugin),pme,(0,0,0),(216, 211, 192),4)
+                authorBtn = pme.draw_button((XY[0]+5,XY[1]+30),f"By: {plugin.Author[:32]}",2,'white',Tip=RedTip)
 
                 Enabled = lambda state: "Enabled" if state else "Disabled"
                 EnabledColor = lambda state: (0,255,0) if state else (255,0,0)
-                enableBtn = pme.draw_button((pme.screen.get_size()[0]-225,XY[1]+100),Enabled(plugin.Enabled),2,(255,255,255),EnabledColor(plugin.Enabled),waitMouseUp=True)
+                IsRequired = lambda plugin: "!!Require External Download!!" if plugin.RequireDownload else "All Fine :)"
+                EnabledTip = Tip(IsRequired(plugin),pme,(0,0,0),(216, 211, 192),4)
+                enableBtn = pme.draw_button((pme.screen.get_size()[0]-225,XY[1]+100),Enabled(plugin.Enabled),2,(255,255,255),EnabledColor(plugin.Enabled),waitMouseUp=True,Tip=EnabledTip)
 
                 if plugin.Icon != '':
                     SCREEN.blit(pyg.transform.scale(pyg.image.load(f'{plugin.AssetsFolder}/{plugin.Name.replace(" ", "")}/{plugin.Icon}'),(72,72)),(pme.screen.get_size()[0]-(160+72),XY[1]+30))
@@ -272,7 +277,7 @@ def ModsPlugins():
             run = exitM()
 
         pme.update()
-        pme.screen.fill('white') # Fill SCreen
+        pme.screen.fill((216, 211, 192)) # Fill SCreen
         CLOCK.tick(CONFIG['FPS'])
 
 def Legals():
@@ -311,7 +316,7 @@ def Legals():
                 Y_SHIFT += -ev.y * 5
 
         pme.update()
-        pme.screen.fill('white') # Fill SCreen
+        pme.screen.fill((216, 211, 192)) # Fill SCreen
 
 def News():
     run = False
@@ -355,4 +360,4 @@ def News():
                 Y_SHIFT += -ev.y * 5
 
         pme.update()
-        pme.screen.fill('white') # Fill SCreen
+        pme.screen.fill((216, 211, 192)) # Fill SCreen

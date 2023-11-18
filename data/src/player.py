@@ -257,7 +257,7 @@ class player(pyg.sprite.Sprite):
     def draw_status(self, state:bool):
         if state:
             # Background
-            pme.draw_rect((75,75),(pme.screen.get_size()[0]-(75*2),pme.screen.get_size()[1]-(75*2)),(0,0,0,100))
+            pme.draw_rect((75,75),(pme.screen.get_size()[0]-(75*2),pme.screen.get_size()[1]-(75*2)),(216, 211, 192, 100))
 
             # Title
             pme.draw_text((80,80),'Status',1,'white',antialias=True)
@@ -266,34 +266,41 @@ class player(pyg.sprite.Sprite):
             if pme.draw_button((pme.screen.get_size()[0]-(75*2),80),'Close',1,'white','red',True):
                 self._StatusOpen = False
 
+            # Tips
+            AtkTip = Tip('Attack: Give More Damage',pme, (0,0,0), (216, 211, 192), 4)
+            DefTip = Tip('Defense: Give More Life, Resistance',pme, (0,0,0), (216, 211, 192), 4)
+            AgiTip = Tip('Agility: Give More Attack Speed, Moviment Speed',pme, (0,0,0), (216, 211, 192), 4)
+            LckTip = Tip('Luck: Give better rewards, More Chance to Critical',pme, (0,0,0), (216, 211, 192), 4)
+            IntTip = Tip('Inteligence: Give more money, more experience',pme, (0,0,0), (216, 211, 192), 4)
+
             # Status
                 # Attack
             pme.draw_text((85,150),f'Attack: {self.attack}',1,'white',antialias=True)
-            if pme.draw_button((300,150),'+',1,'white','green',True):
+            if pme.draw_button((300,150),'+',1,'white','green',True,AtkTip):
                 self.points -= 1
                 self.attack += 1
                 pyg.time.delay(50)
                 # Defense
             pme.draw_text((85,200),f'Defense: {self.defense}',1,'white',antialias=True)
-            if pme.draw_button((300,200),'+',1,'white','green',True):
+            if pme.draw_button((300,200),'+',1,'white','green',True,DefTip):
                 self.points -= 1
                 self.defense += 1
                 pyg.time.delay(50)
                 # Agility
             pme.draw_text((85,250),f'Agility: {self.agility}',1,'white',antialias=True)
-            if pme.draw_button((300,250),'+',1,'white','green',True):
+            if pme.draw_button((300,250),'+',1,'white','green',True,AgiTip):
                 self.points -= 1
                 self.agility += 1
                 pyg.time.delay(50)
                 # Luck
             pme.draw_text(((pme.screen.get_size()[0]-(75*2))-105,150),f'Luck: {self.luck}',1,'white',antialias=True)
-            if pme.draw_button(((pme.screen.get_size()[0]-(75*2))-125,150),'+',1,'white','green',True):
+            if pme.draw_button(((pme.screen.get_size()[0]-(75*2))-125,150),'+',1,'white','green',True,LckTip):
                 self.points -= 1
                 self.luck += 1
                 pyg.time.delay(50)
                 # Inteligence
             pme.draw_text(((pme.screen.get_size()[0]-(75*2))-105,200),f'Inteligence: {self.inteligence}',1,'white',antialias=True)
-            if pme.draw_button(((pme.screen.get_size()[0]-(75*2))-125,200),'+',1,'white','green',True):
+            if pme.draw_button(((pme.screen.get_size()[0]-(75*2))-125,200),'+',1,'white','green',True,IntTip):
                 self.points -= 1
                 self.inteligence += 1
                 pyg.time.delay(50)

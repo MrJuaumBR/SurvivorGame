@@ -35,6 +35,7 @@
         - [x] Experience Bar
         - [x] Life Bar
         - [x] User name
+        - [x] Tip For Buttons
         - [ ] Inventory
         - [ ] Character Skills
     - [ ] Character Art
@@ -42,6 +43,10 @@
         - [x] Colors Fix
     - [x] Decorations
     - [x] Trees
+    - [x] Time
+        - [x] Year, Month, Day
+        - [x] Hour, Minute
+        - [x] Screen Fade in to Shadow of the night
     - [x] Fixed Mixer Not Initilized(Error)
 
 

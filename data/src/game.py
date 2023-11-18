@@ -10,7 +10,6 @@ def loadBuild():
         BUILD_TILES[str(x)] = item
 
 def game(playerId):
-    global DrawEmotions
     run = True
     loadBuild()
     pyg.mixer.music.load(TRACKS['ingame'])
@@ -44,13 +43,19 @@ def game(playerId):
             random.choice([Tree])((random.randint(0, 2000), random.randint(0, 2000)), cam)
     generateMap()
     MenuOpen = False
+
+    # Tips
+    EmoBtnTip = Tip('Emotions Menu', pme,(0,0,0),(216, 211, 192),4)
     def DrawWarns():
         for x,warn in enumerate(Plr.warns):
             pme.draw_text((10,65+(x*15)),f'{warn[0]}',4,warn[1],(0,0,0))
     def DrawMenu(op:bool,DrawEmotions:bool):
+        EmotionsButtons:list[Rect,Rect,] = []
         if DrawEmotions:
-            pme.draw_rect(((SCREEN.get_size()[0]//2)-250,(SCREEN.get_size()[1]//2)-125),(500,250),(0,0,0,100))
+            pme.draw_rect(((SCREEN.get_size()[0]//2)-250,(SCREEN.get_size()[1]//2)-125),(500,250),(216, 211, 192,100))
             pme.draw_text(((SCREEN.get_size()[0]//2)-250,(SCREEN.get_size()[1]//2)-125),'Emotions',2,'white')
+            if pme.draw_button(((SCREEN.get_size()[0]//2)+190,(SCREEN.get_size()[1]//2)-125),'Close',2,'white','red'):
+                DrawEmotions = False
             Pos = [(SCREEN.get_size()[0]//2)-250,(SCREEN.get_size()[1]//2)-100]
             for i,emotion in enumerate(EMOTIONS_SHEET.keys()):
                 if i >= 5:
@@ -59,12 +64,22 @@ def game(playerId):
                 else:
                     Pos[0] += 36
                 try:
-                    SCREEN.blit(pyg.transform.scale(EMOTIONS_SHEET[emotion][0],(32,32)),Pos)
+                    XTip = Tip(f'Emotion: {emotion}', pme,(0,0,0),(216, 211, 192),4)
+                    x = SCREEN.blit(pyg.transform.scale(EMOTIONS_SHEET[emotion][0],(32,32)),Pos)
+                    EmotionsButtons.append([x,XTip])
                 except:
                     pass
+            for btn in EmotionsButtons:
+                m_pos = pyg.mouse.get_pos()
+                if btn[0].collidepoint(m_pos):
+                    btn[1].HoveRing(True)
+                else:
+                    btn[1].HoveRing(False)
+                    
+            
                 
         if op:
-            pme.draw_rect((0,0),(150,pme.screen.get_size()[1]),(0,0,0,100))
+            pme.draw_rect((0,0),(150,pme.screen.get_size()[1]),(216, 211, 192,100))
             pme.draw_text((10,10),'Menu',1,'white')
             DrawEmotions = False
             if pme.draw_button((10,80),'Status',2,'white','brown',True):
@@ -74,24 +89,29 @@ def game(playerId):
                 return op, DrawEmotions
         else:
             SY = SCREEN.get_size()[1]
+            pme.draw_rect((0,SY-150),(275,150),(216, 211, 192,100))
             pme.draw_bar((10,SY-120),(200,20),Plr.health,Plr.maxhealth,[pme.colors['Maroon'],(200,10,10),(0,0,0)],f'{round(Plr.health)}/{round(Plr.maxhealth)} ({round(Plr.health/Plr.maxhealth*100)}%)',2)
             pme.draw_text((10,SY-95),Plr.name[:12],2,'white',antialias=True)
-            pme.draw_text((10,SY-65),f'Level: {Plr.Level}',2,'white',antialias=True)
+            pme.draw_text((10,SY-65),f'Level: {Plr.Level}',2,'blue',antialias=True)
+            pme.draw_text((75,SY-65),f'Money: ${Plr.money}',2,'green',antialias=True)
             pme.draw_bar((10,SY-40),(200,20),Plr.Experience,Plr.Level*100,[pme.colors['Maroon'],pme.colors['BlueViolet'],(0,0,0)],f'{round(Plr.Experience)}/{round(Plr.Level*100)} ({round((Plr.Experience/(Plr.Level*100)*100))}%)',2)
             pme.draw_text((32,SY-145),f'{W.GetTime(["H","M"])} - {W.GetDate()}',2,'white',antialias=True)
             if SCREEN.blit(EMOTIONS_SHEET['Alert'][0],(10,SY-145)).collidepoint(pyg.mouse.get_pos()):
+                EmoBtnTip.HoveRing(True)
                 if pyg.mouse.get_pressed(3)[0]:
                     DrawEmotions = not DrawEmotions
                     pyg.time.delay(250)
                 else:
                     DrawEmotions = DrawEmotions
             else:
+                EmoBtnTip.HoveRing(False)
                 DrawEmotions = DrawEmotions
-            return op, DrawEmotions
+        return op, DrawEmotions
     while run:
+        pme.draw_rect((0,0),pme.screen.get_size(),(0,0,0,W.getAlpha()))
+        # Gui
         DrawWarns()
         MenuOpen,DrawEmotions = DrawMenu(MenuOpen,DrawEmotions)
-        pme.draw_rect((0,0),pme.screen.get_size(),(0,0,0,W.getAlpha()))
         if ShowFPS(0): # Exit by clicking in X on screen
             pyg.time.delay(100)
             run = ex()

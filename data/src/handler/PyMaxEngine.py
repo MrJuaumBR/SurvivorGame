@@ -29,6 +29,7 @@ Fix bugs, implement some features, new name(Old: PooPEngine2 > New: PyMaxEngine)
 strftime = "%d.%m.%Y_%H%M%S"
 colors = {}
 
+
 # Main
 class PyMaxEngine():
     """PyMaxEngine"""
@@ -279,9 +280,11 @@ class PyMaxEngine():
         self.screen.blit(r,r_rect)
         return r_rect
 
-    def draw_button(self,Position:tuple or list,text:str,font:pyg.font or int, color:tuple or list,bgcolor=None, waitMouseUp=False) -> bool:
+    def draw_button(self,Position:tuple or list,text:str,font:pyg.font or int, color:tuple or list,bgcolor=None, waitMouseUp=False, Tip=None) -> bool:
         """Draw a button, return True it is pressed"""
         if self.draw_text(Position,text,font,color,bgcolor).collidepoint(pyg.mouse.get_pos()):
+            if Tip:
+                Tip.HoveRing(True)
             if pyg.mouse.get_pressed(3)[0]:
                 if waitMouseUp:
                     pyg.time.delay(250)
@@ -290,6 +293,8 @@ class PyMaxEngine():
             else:
                 return False
         else:
+            if Tip:
+                Tip.HoveRing(False)
             return False
 
     def draw_select(self,Position: tuple or list,items:list or tuple,cur_index:int,font:int or pyg.font,colors=((0,0,0),(200,200,100))):
@@ -382,6 +387,28 @@ class PyMaxEngine():
     def update(self):
         """Update screen"""
         pyg.display.update()
+
+
+# Extras
+class Tip():
+    """Tip"""
+    def __init__(self,Tip:str,pme:PyMaxEngine,FR_Color:tuple or list=(0,0,0),BG_Color:tuple or list=(255,255,255),font:pyg.font or int=None) -> None:
+        """Tip"""
+        self.Tip = Tip
+        self.Active = False
+        self.Font = font
+        self.Colors = FR_Color, BG_Color
+        self.pme = pme
+    
+    def Draw(self,mouse_pos:tuple):
+        """Draw"""
+        if self.Active:
+            self.pme.draw_text((mouse_pos[0]+16,mouse_pos[1]),self.Tip,self.Font,self.Colors[0],self.Colors[1],True)
+
+    def HoveRing(self,state:bool):
+        m = pyg.mouse.get_pos()
+        self.Active = state
+        self.Draw(m)
 
 
 # Test Engine

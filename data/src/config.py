@@ -141,7 +141,7 @@ else:
     try:
         s = spritesheet(f'.{ICONS_PATH}/png/icons.png')
         rnd = random.choice(Icons_Pos)
-        icon = s.image_at((rnd[0],rnd[1],128,128),255)
+        icon = s.image_at((rnd[0],rnd[1],128,128),-1)
         icon = pyg.transform.scale(icon, (32,32))
     except Exception as err:
         print(err)
