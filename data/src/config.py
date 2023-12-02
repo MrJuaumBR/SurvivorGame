@@ -79,8 +79,13 @@ CONFIG_DEFAULT_VALUE = {
     "FPS":60,
     "VOLUME":100,
     "FULLSCREEN":False,
-    "SHOWFPS":False
+    "SHOWFPS":False,
+    'AUTOSAVE':True,
+    'AUTOSAVE_TIME':0
 }
+
+AUTOSAVE_TIMES = [5,10,20,40,80,160]
+
 DF_WIDTH = 1024
 DF_HEIGHT = 720
 DEFAULT_SCREEN_SIZE = (DF_WIDTH, DF_HEIGHT)
@@ -89,6 +94,22 @@ from .handler.database import DB
 from .handler.PyMaxEngine import *
 from .handler.timerConverter import TimeConverter
 from .handler.spritesheet import spritesheet
+
+def LoadSlashAnimation():
+    ss = spritesheet(f'.{TEXTURES_PATH}/sword_animation.png')
+
+    StartPos = [20, 25]
+    X_Addition = 120
+    Y_Addition = 155
+    SlashAnimations = {}
+    for y in range(4):
+        SlashAnimations[y] = []
+        for x in range(6):
+            img = pyg.transform.scale(ss.image_at((StartPos[0],StartPos[1],86,86),-1),(64,64))
+            SlashAnimations[y].append(img)
+            StartPos[0] += X_Addition
+        StartPos[1] += Y_Addition
+    return SlashAnimations
 
 def CreateTables():
     DB.database.create_table('saves',[('data',bytes,False)])
@@ -127,6 +148,10 @@ if CONFIG['FULLSCREEN']:
 
 SCREEN = pme.create_screen(DEFAULT_SCREEN_SIZE, flags=SCREEN_FLAGS)
 # Get Icon
+
+# Load Background Image
+GAME_BACKGROUND = pyg.transform.scale(pme.load_image(f'.{TEXTURES_PATH}/background.jpeg'),SCREEN.get_size())
+
 if not os.path.exists(f'.{ICONS_PATH}/png/icons.png'):
     icon = pyg.Surface((32,32))
     icon.fill((255,255,255))
@@ -183,6 +208,7 @@ def ShowFPS(t=None):
     if pme.draw_button((SCREEN.get_size()[0]-30,0),'X',2,'white','red'):
         if t == None:
             DB.save()
+            print(f'[Game - {GAME_TITLE}] {Fore.LIGHTMAGENTA_EX}Game ended!{Fore.RESET}')
             pme.quit()
         elif t == 0:
             pyg.time.delay(150)
@@ -200,6 +226,8 @@ pme.create_sysFont('arial', 18, True,False)
 pme.create_sysFont('arial', 40, True,True)
 pme.create_sysFont('arial', 12, True,False)
 pme.create_sysFont('arial', 10, True,False)
+
+from .camera import Camera
 
 ###                  After All, Load Plugin Handler                  ###
 

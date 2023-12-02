@@ -2,5 +2,5 @@
 requests
 pygame
 colorama
-JPyDB
 pipreqs
+# JPyDB, Need to use test pypi

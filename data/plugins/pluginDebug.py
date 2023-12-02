@@ -66,6 +66,7 @@ class _Plugin(_BasePlugin):
         self.pme.draw_text((10,10),f"Mods: {plugins}",4, (0,0,0),(255,255,255))
         if self.pme.draw_button((10,self.pme.screen.get_size()[1]-100),'Delete Database',2,'white','red'):
             self.gameData.DB.deleteDatabase()
+            pme.quit()
         if self.pme.draw_button((10,self.pme.screen.get_size()[1]-125),'Delete Saves',2,'white','red'):
             self.gameData.DB.database.delete_all('saves')
 

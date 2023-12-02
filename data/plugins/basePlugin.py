@@ -5,6 +5,7 @@ File: pyplugin
 import requests
 import os
 import pygame
+from ..src.world import *
 
 class _Plugin():
     ITEMS = {}
@@ -50,18 +51,18 @@ class _Plugin():
             filename = self._FixUrl(local.split('/')[-1])
             save_path = f'{save_path}/{self.Name.replace(" ", "")}/{filename}'
             if not os.path.exists(f'{save_path.replace(filename,"")}'):
-                print("\n\nPlugin creating folder...")
+                print(f"\n\n[{self.Name}] {Fore.BLUE}Plugin creating folder...{Fore.RESET}")
                 os.mkdir(f"{save_path.replace(filename,'')}")
             if not os.path.exists(save_path):
-                print(f"Downloading: {save_path}...")
+                print(f"[{self.Name}] {Fore.BLUE}Downloading: {save_path}...{Fore.RESET}")
                 with open(save_path, 'wb') as fd:
                     for chunk in r.iter_content(chunk_size=chunk_size):
                         fd.write(chunk)
-                print("Download Completed!\n\n")
+                print(f"[{self.Name}] {Fore.GREEN}Download Completed!{Fore.RESET}\n\n")
             else:
-                print(f"Required: {save_path}, But already exists.")
+                print(f"[{self.Name}] {Fore.CYAN}Required: {save_path}, But already exists.{Fore.RESET}")
         except Exception as err:
-            print("Error occurred while trying to download plugin data.")
+            print(f"[{self.Name}] {Fore.RED}Error occurred while trying to download plugin data.{Fore.RESET}")
             raise(err)
         
     def varsGet(self,defines:list or dict, varname) -> any:
@@ -74,6 +75,24 @@ class _Plugin():
     def Items(self) -> list:
         Items = []
         return Items
+    # Loops
+    def MainGameLoop(self):
+        pass
+
+    def CreateSaveLoop(self):
+        pass
+
+    def LoadSaveScreenLoop(self):
+        pass
+
+    def optionsLoop(self):
+        pass
+
+    def drawGameMenu(self, player, camera,World:World):
+        pass
+
+    def GameLoop(self, defined:list or dict):
+        pass
 
 class Plugin(_Plugin):
     def __init__(self, gameData) -> None:

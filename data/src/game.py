@@ -1,9 +1,10 @@
 from .config import *
 from .camera import *
 from .player import player
-from .data.items import *
+from .data.Tiles import *
 from .data.enemys import *
 from .world import *
+from .handler.Icons import *
 
 def loadBuild():
     for x,item in enumerate(BUILD_ITEMS,0):
@@ -20,6 +21,11 @@ def game(playerId):
     Plr.Load(DB.database.get_value('saves','data',id=playerId))
     W:World = World()
     W.Load(Plr.W.__dict__)
+
+    # Create Uis Icon (Free Ram)
+    LFIcon = LifeIcon((32,32),True,'Life')
+    ExpIcon = ExperienceIcon((64,64),True,'Experience')
+
     def ex():
         DB.database.update_value('saves','data',playerId,Plr.Save(cam))
         DB.database.save()
@@ -80,21 +86,33 @@ def game(playerId):
                 
         if op:
             pme.draw_rect((0,0),(150,pme.screen.get_size()[1]),(216, 211, 192,100))
+            pme.draw_rect((0,0),(150,pme.screen.get_size()[1]),(166, 161, 142),2)
             pme.draw_text((10,10),'Menu',1,'white')
             DrawEmotions = False
-            if pme.draw_button((10,80),'Status',2,'white','brown',True):
+            #if pme.draw_button2((10,80),'Status',2,'white','brown',True):
+            if pme.draw_button2((10,80),'Status', 2,[(255,255,255),(166, 161, 142,100),(100,100,100)],True):
                 Plr._StatusOpen = True
                 return (not op),DrawEmotions
-            else:
-                return op, DrawEmotions
+            elif pme.draw_button2((10,135),'Inventory',2,[(255,255,255),(166, 161, 142,100),(100,100,100)],True):
+                Plr._InventoryOpen = True
+                return (not op),DrawEmotions
         else:
             SY = SCREEN.get_size()[1]
             pme.draw_rect((0,SY-150),(275,150),(216, 211, 192,100))
-            pme.draw_bar((10,SY-120),(200,20),Plr.health,Plr.maxhealth,[pme.colors['Maroon'],(200,10,10),(0,0,0)],f'{round(Plr.health)}/{round(Plr.maxhealth)} ({round(Plr.health/Plr.maxhealth*100)}%)',2)
-            pme.draw_text((10,SY-95),Plr.name[:12],2,'white',antialias=True)
-            pme.draw_text((10,SY-65),f'Level: {Plr.Level}',2,'blue',antialias=True)
-            pme.draw_text((75,SY-65),f'Money: ${Plr.money}',2,'green',antialias=True)
-            pme.draw_bar((10,SY-40),(200,20),Plr.Experience,Plr.Level*100,[pme.colors['Maroon'],pme.colors['BlueViolet'],(0,0,0)],f'{round(Plr.Experience)}/{round(Plr.Level*100)} ({round((Plr.Experience/(Plr.Level*100)*100))}%)',2)
+            pme.draw_rect((0,SY-150),(275,150),(166, 161, 142),2)
+
+            # Health
+            pme.draw_bar((24,SY-120),(200,24),Plr.health,Plr.maxhealth,[pme.colors['Maroon'],(200,10,10),(0,0,0)],f'{round(Plr.health)}/{round(Plr.maxhealth)} ({round(Plr.health/Plr.maxhealth*100)}%)',2)
+            LFIcon.draw((10,SY-110))
+            # Name, Level, Money
+            pme.draw_text((24,SY-95),Plr.name[:12],2,'white',antialias=True)
+            pme.draw_text((24,SY-65),f'Level: {Plr.Level}',2,'blue',antialias=True)
+            pme.draw_text((75+24,SY-65),f'Money: ${Plr.money}',2,'green',antialias=True)
+
+            # Experience
+            pme.draw_bar((24,SY-40),(200,24),Plr.Experience,Plr.Level*100,[pme.colors['Maroon'],(153, 229, 80),(0,0,0)],f'{round(Plr.Experience)}/{round(Plr.Level*100)} ({round((Plr.Experience/(Plr.Level*100)*100))}%)',2)
+            ExpIcon.draw((10,SY-30))
+
             pme.draw_text((32,SY-145),f'{W.GetTime(["H","M"])} - {W.GetDate()}',2,'white',antialias=True)
             if SCREEN.blit(EMOTIONS_SHEET['Alert'][0],(10,SY-145)).collidepoint(pyg.mouse.get_pos()):
                 EmoBtnTip.HoveRing(True)
@@ -117,11 +135,18 @@ def game(playerId):
             run = ex()
 
         for ev in pme.events():
+            if ev.type == MOUSEWHEEL:
+                Plr.MouseWheelChange(ev.y)
+            else:
+                Plr.MouseWheelChange(0)
             if ev.type == QUIT:
                 run = ex()
             elif ev.type == KEYDOWN:
                 if ev.key == K_ESCAPE:
                     MenuOpen = not MenuOpen
+                elif ev.key in [K_LCTRL,K_RCTRL]:
+                    Plr._MOUSE.Active = not Plr._MOUSE.Active
+                    print(f'[Game - InGame] {Fore.CYAN}Mouse: {Plr._MOUSE.Active}{Fore.RESET}')
     
         # Update
         PLoader.LoadGameLoop(PLUGINS_HANDLER, globals(), locals())

@@ -27,13 +27,19 @@ class Enemy(pyg.sprite.Sprite):
     _layer = 3
     _attack_delay = TC.getTime(1)
     _move_delay = TC.getTime(2)
+
+    # Stats
     _damage = 5
     _speed = 5
+    _defense = 5
+    _level = 1
+    _baseExp = 10
+    health = 100
+    maxhealth = 100
+
     _locked = False
     _type = 'enemy'
     _name = "Enemy Base"
-    health = 100
-    maxhealth = 100
     def __init__(self, XY,*groups) -> None:
         super().__init__(*groups)
         self.rect = Rect(XY[0],XY[1],32,32)
@@ -60,6 +66,28 @@ class Enemy(pyg.sprite.Sprite):
         else:
             self._locked = False
 
+    def takeDamage(self, damage:float or int):
+        if self.health > 0:
+            d = self._defense / 3
+            self.health -= (damage - d)
+
+    def Reward(self):
+        try:
+            plr = self.camera.player
+            if self.health <= 0 and plr.health >= 1:
+                exp = int(self._baseExp* (1+(self._level * (plr.luck/3))))
+                gold = int(25*(self._level*(plr.luck/3)))
+                plr.Experience += exp
+                plr.money += gold
+                print(f'[Enemy] Player Killed {self._name} and won {Fore.LIGHTBLUE_EX}{exp}{Fore.RESET} of exp and {Fore.YELLOW}${gold}{Fore.RESET} of money')
+        except Exception as err:
+            print(f'{Fore.RED}[Enemy - Reward] {err}{Fore.RESET}')
+
+    def IsDead(self):
+        if self.health<=0:
+            self.Reward()
+            self.kill()
+
     def movement(self):
         if self._move_delay <= 0:
             if not self._locked:
@@ -75,8 +103,11 @@ class Enemy(pyg.sprite.Sprite):
                     self.rect.y += self.path.y * self._speed
 
     def update(self, player):
+        if self.health <= 0:
+            self._locked = True
         self.collision(player)
         self.movement()
+        self.IsDead()
         if self._attack_delay > 0:
             self._attack_delay -= 1
         if self._move_delay > 0:

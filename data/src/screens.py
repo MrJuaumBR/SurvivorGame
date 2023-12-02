@@ -12,6 +12,7 @@ def createSave() -> bool:
     plr.name = CharName
     plr.Color = Colors[color_ind]
     while run:
+        pme.draw_rect2((20,75),(SCREEN.get_size()[0]-40,SCREEN.get_size()[1]-100),(216, 211, 192,100),2)
         # Draw Components
         pme.draw_text((25,50),'Character Name: ', 2, 'black')
         TX_BOX, CharName = pme.draw_textbox((30,80),1,['white',pme.colors['salmon'],pme.colors['orangered']],TX_BOX,CharName,12,[K_SPACE])
@@ -54,6 +55,7 @@ def createSave() -> bool:
 
         pme.update()
         pme.screen.fill((216, 211, 192)) # Fill SCreen
+        pme.insert_on(GAME_BACKGROUND,(0,0))
         CLOCK.tick(CONFIG['FPS'])
 
 def LoadSaveScreen():
@@ -125,6 +127,7 @@ def LoadSaveScreen():
 
         pme.update()
         pme.screen.fill((216, 211, 192)) # Fill SCreen
+        pme.insert_on(GAME_BACKGROUND,(0,0))
         CLOCK.tick(CONFIG['FPS'])
         
 def options():
@@ -139,16 +142,31 @@ def options():
         CONFIG['VOLUME'] = VOL_VALUE
         CONFIG['FULLSCREEN'] = SCR_VALUE
         CONFIG["SHOWFPS"] = SHOWFPS_VALUE
+        CONFIG['AUTOSAVE'] = AUTOSAVE_VALUE
+        CONFIG['AUTOSAVE_TIME'] = AUTO_TIME
 
         DB.database.update_value('config','data',0,CONFIG)
         DB.save()
         pyg.time.delay(100)
+        print(f'[Options] {Fore.GREEN}Saved Configs{Fore.RESET}')
         return False
+    AUTO_TIME = CONFIG['AUTOSAVE_TIME']
+    AUTOSAVE_VALUE = CONFIG['AUTOSAVE']
+    print(f'[Options] {Fore.YELLOW}Config:\n')
+    def test():
+        anims = LoadSlashAnimation()
+        for y,key in enumerate(anims.keys()):
+            for x,image in enumerate(anims[key]):
+                SCREEN.blit(image,((x+1)*32,(y+1)*32))
+    for key, value in CONFIG.items():
+        print(f'\t{Fore.YELLOW}- {key}: {value}{Fore.RESET}')
     while run:
         for ev in pme.events():
             if ev.type == QUIT:
                 run = exitM()
 
+
+        pme.draw_rect2((20,75),(SCREEN.get_size()[0]-40,SCREEN.get_size()[1]-100),(216, 211, 192,100),2)
         # Draw Components
         VOL_X, VOL_VALUE = pme.draw_slider((25,80),SCREEN.get_size()[0]-100,VOL_X)
         VOL_VALUE = 100*VOL_VALUE
@@ -160,6 +178,12 @@ def options():
         SHOWFPS_VALUE = pme.draw_switch((25,190),2,SHOWFPS_VALUE)
         pme.draw_text((25,170),'Show FPS: ',2,'black')
 
+        AUTOSAVE_VALUE = pme.draw_switch((25,245),2,AUTOSAVE_VALUE)
+        pme.draw_text((25,225),'Auto Save: ',2,'black')
+
+        AUTO_TIME = pme.draw_select((50,290),AUTOSAVE_TIMES,AUTO_TIME,2)
+        pme.draw_text((25,270),'Auto Save Time: (s)',2,'black')
+
         if pme.draw_button((25,SCREEN.get_size()[1]-50),'Mods/Plugins',2,'black', 'blue'):
             ModsPlugins()
 
@@ -167,6 +191,7 @@ def options():
         pme.draw_text((15,0),"Options",3,'black',antialias=True) # Title
         pme.draw_rect((0,0),(10,pme.screen.get_size()[1]),RND_COLOR) # Bar
         PLoader.LoadOptionsLoop(PLUGINS_HANDLER)
+        # test()
         if ShowFPS(0): # Exit by clicking in X on screen
             run = exitM()
             
@@ -174,6 +199,7 @@ def options():
         
         pme.update()
         pme.screen.fill((216, 211, 192)) # Fill SCreen
+        pme.insert_on(GAME_BACKGROUND,(0,0))
         CLOCK.tick(CONFIG['FPS'])
 
 def ModsPlugins():
@@ -185,6 +211,7 @@ def ModsPlugins():
     Scrollarea_Rect = Rect(30,55,SCREEN.get_size()[0]-100,SCREEN.get_size()[1]-75)
     def LoadPlugins():
         btns = []
+        pme.draw_rect2((20,75),(SCREEN.get_size()[0]-40,SCREEN.get_size()[1]-100),(216, 211, 192,100),2)
         pme.draw_rect(Scrollarea_Rect.topleft,Scrollarea_Rect.size,(50,50,50))
         BARY = Y_Shift
         if Y_Shift < Scrollarea_Rect.top:
@@ -211,6 +238,8 @@ def ModsPlugins():
                 pme.draw_rect((XY[0],XY[1]),(pme.screen.get_size()[0]-160,120),(50,100,200))
                 pme.draw_text(XY,f"{i} - {pluginName[:32]}",1, (255,255,255),antialias=True)
                 pme.draw_text((XY[0],XY[1]+50),f"{plugin.Description[:65]}",4, (255,255,255),antialias=True)
+                if plugin.Icon != '':
+                    SCREEN.blit(pyg.transform.scale(pyg.image.load(f'{plugin.AssetsFolder}/{plugin.Name.replace(" ", "")}/{plugin.Icon}'),(72,72)),(pme.screen.get_size()[0]-(160+72),XY[1]+30))
                 deleteBtn = pme.draw_button((pme.screen.get_size()[0]-160,XY[1]+100),"Delete",2,'white','red',True)
 
                 WillRedir = lambda plugin: f"Will Redirect you to: {plugin.AuthorUrl}" if plugin.AuthorUrl != '' else "This plugin doesn't have a AuthorUrl"
@@ -222,9 +251,6 @@ def ModsPlugins():
                 IsRequired = lambda plugin: "!!Require External Download!!" if plugin.RequireDownload else "All Fine :)"
                 EnabledTip = Tip(IsRequired(plugin),pme,(0,0,0),(216, 211, 192),4)
                 enableBtn = pme.draw_button((pme.screen.get_size()[0]-225,XY[1]+100),Enabled(plugin.Enabled),2,(255,255,255),EnabledColor(plugin.Enabled),waitMouseUp=True,Tip=EnabledTip)
-
-                if plugin.Icon != '':
-                    SCREEN.blit(pyg.transform.scale(pyg.image.load(f'{plugin.AssetsFolder}/{plugin.Name.replace(" ", "")}/{plugin.Icon}'),(72,72)),(pme.screen.get_size()[0]-(160+72),XY[1]+30))
                 btns.append((pluginName, deleteBtn,authorBtn, enableBtn))
         for data in btns:
             delete = data[1]
@@ -278,6 +304,7 @@ def ModsPlugins():
 
         pme.update()
         pme.screen.fill((216, 211, 192)) # Fill SCreen
+        pme.insert_on(GAME_BACKGROUND,(0,0))
         CLOCK.tick(CONFIG['FPS'])
 
 def Legals():

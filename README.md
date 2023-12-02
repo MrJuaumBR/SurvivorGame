@@ -23,6 +23,15 @@
     - [x] GitHub Button
     - [x] Discord Button
 - [x] In Game
+    - [x] Enemys
+        - [x] Take Damage
+        - [x] Die
+        - [x] Rewards
+            - [x] Money
+            - [x] Experience
+    - [x] Attack
+        - [x] Animation
+        - [x] Effect
     - [x] Status
     - [x] Level
         - [x] Warn When Level Up
@@ -38,6 +47,9 @@
         - [x] Tip For Buttons
         - [ ] Inventory
         - [ ] Character Skills
+    - [ ] Mouse
+        - [ ] Fix Ghost Mouse
+        - [ ] Fix Old Mouse Icon
     - [ ] Character Art
         - [x] Idle
         - [x] Colors Fix
@@ -47,7 +59,7 @@
         - [x] Year, Month, Day
         - [x] Hour, Minute
         - [x] Screen Fade in to Shadow of the night
-    - [x] Fixed Mixer Not Initilized(Error)
+- [x] Fixed Mixer Not Initilized(Error)
 
 
 # Addons/Plugins/Mods
@@ -59,7 +71,15 @@
 
 [JPyDB](https://test.pypi.org/project/JPyDB/) >= 0.7.1
 
+# Abouts Requirements
+*See [Requirements.txt](./requirements.txt) for more info*
 
+**JPyDB**
+    - JPyDB need to be installed by Test PyPi.
+
+
+
+---
 # Full Informations at [README WEB FILE](./README.htm)
 
 !!!         MAKE SURE YOU INSTALLED JPYDB BY THE COMMAND IN [Test Pypi](https://test.pypi.org/project/JPyDB/)         !!!

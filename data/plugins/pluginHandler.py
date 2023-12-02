@@ -5,6 +5,7 @@ Exception
 """
 
 from JPyDB import pyDatabase
+from colorama import Fore, Back
 class CustomExc(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
@@ -50,9 +51,9 @@ class Loader():
         x2 = self.StripLines(x)
         if x and x2 and len(x2) > 0:
             if not (x2[0].split(' ')[1].lower() in self.Accetable):
-               raise(CustomExc(f'{file} is not a plugin!'))
+               raise(CustomExc(f'[Plugin Handler] {Fore.RED}{file} is not a plugin!{Fore.RESET}'))
             else:
-                print(f'{file} Loaded!')
+                print(f'[Plugin Handler] {Fore.GREEN}{file} Loaded!{Fore.RESET}')
                 Stringed = ""
                 Stringed = self.Folder.replace('.','') #remove extra '.'
                 Stringed = Stringed[1:] # Remove First Character
@@ -64,16 +65,16 @@ class Loader():
         try:
             if os.path.exists('./assets/'+self.Folder+pluginName):
                 os.remove('./assets/'+self.Folder+pluginName)
-                print(f'{pluginName} Assets Deleted!')
+                print(f'[Plugin Handler] {Fore.RED}{pluginName} Assets Deleted!{Fore.RESET}')
             else:
-                print(f'{pluginName} Assets Not Found!')
+                print(f'[Plugin Handler] {Fore.RED}{pluginName} Assets Not Found!{Fore.RESET}')
             if os.path.exists('./'+self.Folder+pluginName+'.py'):
                 os.remove('./'+self.Folder+pluginName+'.py')
-                print(f'{pluginName} Main Deleted!')
+                print(f'[Plugin Handler] {Fore.RED}{pluginName} Main Deleted!{Fore.RESET}')
             else:
-                print(f'{pluginName} Main Not Found!')
+                print(f'[Plugin Handler] {Fore.RED}{pluginName} Main Not Found!{Fore.RESET}')
         except Exception as err:
-            print(f"Error while trying to delete {pluginName}")
+            print(f"[Plugin Handler] {Fore.RED}Error while trying to delete {pluginName}{Fore.RESET}")
             raise(err)
 
     def Load(self) -> list[str,]:

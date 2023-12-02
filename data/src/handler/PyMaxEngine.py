@@ -64,17 +64,7 @@ class PyMaxEngine():
     
     def check_update(self):
         """"Check if it is updated"""
-        ver_source = self.get_source()['apps']
-        for key in ver_source:
-            if key['name'] == self.Name:
-                if not (float(self.v()) >= float(key["version"])):
-                    raise OutdatedExc()
-    
-    def get_source(self):
-        """Get the source json for check update"""
-        r = get("https://raw.githubusercontent.com/MrJuaumBR/MrJuaumBR.github.io/main/data/applications.json")
-        r = loads(r.text)
-        return r
+        pass
 
     def requirements_gen(self):
         """Generate a requirements.txt for pip install"""
@@ -98,15 +88,16 @@ class PyMaxEngine():
             if kwargs.get('flags'): # Scale if fullscreen and not Scaled
                 if str(kwargs.get('flags')) == str(-2147483648):
                     kwargs.update(flags=-2147483136)
-                    print(f"{Fore.GREEN}Fullscreen withou scaled, scaled!{Fore.RESET}")
+                    print(f"[PyMaxEngine] {Fore.GREEN}Fullscreen withou scale, scaled!{Fore.RESET}")
             os.environ['SDL_VIDEO_CENTERED'] = '1'
             if kwargs:
                 self.screen = pyg.display.set_mode(size,**kwargs)
             else:
                 self.screen =pyg.display.set_mode(size)
+            print(f'[PyMaxEngine] {Fore.GREEN}Screen created!{Fore.RESET}')
             return self.screen
         else:
-            print(f"{Fore.RED}You already have a screen!{Fore.RESET}")
+            print(f"[PyMaxEngine] {Fore.RED}You already have a screen!{Fore.RESET}")
 
     def while_key_hold(self,key):
         keys = pyg.key.get_pressed()
@@ -120,10 +111,10 @@ class PyMaxEngine():
         r = pyg.font.SysFont(name, size, bold, italic)
         
         if r in self.fonts:
-            print(f"{Fore.RED}Font already exists in index: {self.fonts.index(r)}{Fore.RESET}")
+            print(f"[PyMaxEngine] {Fore.RED}Font already exists in index: {self.fonts.index(r)}{Fore.RESET}")
         else:
             self.fonts.append(r)
-            print(f"Font created in index: {self.fonts.index(r)}")
+            print(f"[PyMaxEngine] {Fore.GREEN}Font created in index: {self.fonts.index(r)}{Fore.RESET}")
         return r
     
     def create_font(self,font_file="", font_size = 16) -> pyg.font:
@@ -144,10 +135,14 @@ class PyMaxEngine():
         o = pyg.draw.circle(self.screen,color,Position,radius)
         return o
     
-    def load_image(self,path) ->pyg.image:
+    def load_image(self,path) ->pyg.surface:
         """Load a image"""
         i = pyg.image.load(path)
         return i
+    
+    def insert_on(self, surface:pyg.surface, position:tuple or list) -> pyg.surface:
+        """Insert a SURFACE on a surface"""
+        self.screen.blit(surface, position)
 
     def draw_textbox(self, Position:tuple or list,font:int,colors=[tuple,tuple,tuple],active=False, text='',character_limit=100,otherBlackList=[]) -> [bool, str]:
         if type(font) == int:
@@ -234,6 +229,12 @@ class PyMaxEngine():
             o = pyg.draw.rect(self.screen,color,Rect(Position[0],Position[1],Size[0],Size[1]),border)
         return o
 
+    def draw_rect2(self,Position:tuple or list,Size:tuple or list, color:tuple,border:int=0) -> pyg.Rect:
+        """Draw a rect, it can have Alpha: (R,G,B,A)"""
+        self.draw_rect(Position,Size,color,0)
+        if border > 0:
+            self.draw_rect(Position,Size,color,border)
+
     def draw_slider(self,Position:tuple or list,Width:int,CurX:int,colors=((0,0,0),(200,200,200))):
         """Draw a slider control return current ball X and float between 0 - 1"""
         MaxX = Position[0] + Width
@@ -283,6 +284,33 @@ class PyMaxEngine():
     def draw_button(self,Position:tuple or list,text:str,font:pyg.font or int, color:tuple or list,bgcolor=None, waitMouseUp=False, Tip=None) -> bool:
         """Draw a button, return True it is pressed"""
         if self.draw_text(Position,text,font,color,bgcolor).collidepoint(pyg.mouse.get_pos()):
+            if Tip:
+                Tip.HoveRing(True)
+            if pyg.mouse.get_pressed(3)[0]:
+                if waitMouseUp:
+                    pyg.time.delay(250)
+                    return True
+                return True
+            else:
+                return False
+        else:
+            if Tip:
+                Tip.HoveRing(False)
+            return False
+        
+    def draw_button2(self, Position:tuple or list, text:str, font:pyg.font.Font or int, Colors:tuple or list=[tuple,tuple,tuple], waitMouseUp=False, Tip=None) -> bool:
+        """Draw a button, return True it is pressed"""
+        if type(font) == int:
+            font:pyg.font.Font = self.fonts[font]
+        else:
+            font:pyg.font.Font = font
+        
+        render_size = font.size(text)
+        bg = self.draw_rect((Position[0],Position[1]),(render_size[0],render_size[1]),Colors[1])
+        if len(Colors) == 3:
+            self.draw_rect((Position[0]-2,Position[1]-2),(render_size[0]+4,render_size[1]+4),Colors[2],2)
+        text = self.draw_text(Position,text,font,Colors[0],antialias=True)
+        if bg.collidepoint(pyg.mouse.get_pos()) or text.collidepoint(pyg.mouse.get_pos()):
             if Tip:
                 Tip.HoveRing(True)
             if pyg.mouse.get_pressed(3)[0]:
@@ -396,14 +424,46 @@ class Tip():
         """Tip"""
         self.Tip = Tip
         self.Active = False
-        self.Font = font
+        if type(font) == int:
+            self.Font:pyg.font.Font = pme.fonts[font]
+        else:
+            self.Font:pyg.font.Font = font
         self.Colors = FR_Color, BG_Color
         self.pme = pme
     
     def Draw(self,mouse_pos:tuple):
         """Draw"""
         if self.Active:
-            self.pme.draw_text((mouse_pos[0]+16,mouse_pos[1]),self.Tip,self.Font,self.Colors[0],self.Colors[1],True)
+            if self.Tip.find('\n') == -1:
+                t = []
+            else:
+                t = self.Tip.split('\n')
+            s_posy:int = mouse_pos[1]-16
+            size_rect = [0,0]
+            if len(t) > 0:
+                line_form = []
+                for line in t:
+                    size = self.Font.size(line)
+                    size_rect[1] += size[1]
+                    size_rect[0] = size[0]
+                    pos:int = s_posy
+                    line_form.append((line, pos))
+                    s_posy += size[1]+2
+
+                self.pme.draw_rect((mouse_pos[0]+16,mouse_pos[1]-16),(size_rect[0]+2,size_rect[1]+2),self.Colors[1])
+                Border = lambda: self.Colors[2] if len(self.Colors) >= 3 else (255,255,255)
+                self.pme.draw_rect((mouse_pos[0]+14,mouse_pos[1]-18),(size_rect[0]+4,size_rect[1]+4),Border(),2)
+                for t in line_form:
+                    #self.pme.draw_text((mouse_pos[0]+16,mouse_pos[1]-16),self.Tip,self.Font,self.Colors[0],self.Colors[1],True)
+                    self.pme.draw_text((mouse_pos[0]+16,t[1]),t[0],self.Font,self.Colors[0],antialias=True)
+            else:
+                size = self.Font.size(self.Tip)
+                size_rect[1] = size[1]
+                size_rect[0] = size[0]
+                self.pme.draw_rect((mouse_pos[0]+16,mouse_pos[1]-16),(size_rect[0]+2,size_rect[1]+2),self.Colors[1])
+                Border = lambda: self.Colors[2] if len(self.Colors) >= 3 else (255,255,255)
+                self.pme.draw_rect((mouse_pos[0]+14,mouse_pos[1]-18),(size_rect[0]+4,size_rect[1]+4),Border(),2)
+                self.pme.draw_text((mouse_pos[0]+16,mouse_pos[1]-16),self.Tip,self.Font,self.Colors[0],antialias=True)
 
     def HoveRing(self,state:bool):
         m = pyg.mouse.get_pos()

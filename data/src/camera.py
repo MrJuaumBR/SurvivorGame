@@ -3,6 +3,7 @@ import pygame as pyg
 from pygame.locals import *
 
 class Camera(pyg.sprite.Group):
+    _Player_Def = False
     def __init__(self, *sprites) -> None:
         super().__init__(*sprites)
 
@@ -21,6 +22,8 @@ class Camera(pyg.sprite.Group):
         self.internal_offset = pyg.math.Vector2()
         self.internal_offset.x = self.internal_surf_size[0] // 2 - self.half_w
         self.internal_offset.y = self.internal_surf_size[1] // 2 - self.half_h
+
+        self.player = None
 
     def center_target_camera(self, target):
         self.offset.x = target.rect.centerx - self.half_w
@@ -42,6 +45,9 @@ class Camera(pyg.sprite.Group):
             if spr != player:
                 spr.update(player,*args, **kwargs)
             else:
+                if not self._Player_Def:
+                    spr.Camera = self
+                    self._Player_Def = True
                 spr.update()
 
     def draw(self,player):
@@ -64,8 +70,15 @@ class Camera(pyg.sprite.Group):
         scaled_surf = pyg.transform.scale(self.internal_surf, self.internal_surf_size_vector*self.zoom_scale)
         scaled_rect = scaled_surf.get_rect(center=(self.half_w,self.half_h))
 
+        player.Slash.draw(scaled_surf)
         self.display_surface.blit(scaled_surf,scaled_rect)
         player.draw_ui(self)
+        self.player = player
+
+    def draw_in(self, surf, pos, to_surf:pyg.Surface):
+        offset_pos = self.convert_offset(pos)
+        to_surf.blit(surf, offset_pos)
+        # self.internal_surf.blit()
 
     def convert_offset(self, pos):
         offset_pos = pos - self.offset + self.internal_offset
@@ -74,6 +87,21 @@ class Camera(pyg.sprite.Group):
     def receive_sprites(self,*sprites):
         for spr in sprites:
             self.add(spr)
+
+    def sprites_rect(self) -> list[pyg.Rect,]:
+        spr = self.sprites()
+        rects = []
+        for sprite in spr:
+            rects.append(sprite.rect)
+        return rects
+    
+    def sprites_collide(self, rect:Rect) -> list:
+        spr = self.sprites()
+        rects = []
+        for sprt in spr:
+            if sprt.rect.colliderect(rect):
+                rects.append(sprt)
+        return rects
 
     def saving(self) -> list:
         s = []
