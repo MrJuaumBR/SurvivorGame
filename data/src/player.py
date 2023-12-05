@@ -93,9 +93,16 @@ class _Mouse():
             self.display = pyg.cursors.Cursor((15,5), pyg.transform.scale(self.getSpriteDisplay(self.Active),(24,24)))
             pyg.mouse.set_cursor(self.display)
         except Exception as err:
-            print(f'[Mouse - Player] {Fore.RED}Mouse Side Cant Refactor for now.{Fore.RESET}')
+            print(f'{Fore.RED}[Mouse - Player] Mouse Side Cant Refactor for now.{Fore.RESET}')
             print(f'\n\n{Fore.RED}{err}{Fore.RESET}')
             self.camera = self.player.Camera
+    
+    def UPDATE_MOUSE(self):
+        print(f'{Fore.YELLOW}[Mouse - Player] Update Mouse Icon.{Fore.RESET}')
+        newMS = spritesheet(f'.{TEXTURES_PATH}/mouse.png')
+        self.getSpriteDisplay = lambda Active: newMS.image_at((0,0,16,16),0) if Active else newMS.image_at((16,0,16,16),0)
+        self.display = pyg.cursors.Cursor((15,5), pyg.transform.scale(self.getSpriteDisplay(self.Active),(24,24)))
+        pyg.mouse.set_cursor(self.display)
 
 class _Slash(pyg.sprite.Sprite):
     image = None
@@ -386,6 +393,9 @@ class player(pyg.sprite.Sprite):
             if pme.while_key_hold(K_b):
                 self._BuildOpen = not self._BuildOpen
                 pyg.time.delay(100)
+            
+            if pme.key_pressed(K_DELETE):
+                self._MOUSE.UPDATE_MOUSE()
 
     def ConvertMove(self):
         if not self._MOUSE.Active:
@@ -499,32 +509,37 @@ class player(pyg.sprite.Sprite):
                 # Attack
             pme.draw_text((85,150),f'Attack: {self.attack}',1,'white',antialias=True)
             if pme.draw_button((300,150),'+',1,'white','green',True,AtkTip):
-                self.points -= 1
-                self.attack += 1
-                pyg.time.delay(50)
+                if self.points > 0:
+                    self.points -= 1
+                    self.attack += 1
+                    pyg.time.delay(50)
                 # Defense
             pme.draw_text((85,200),f'Defense: {self.defense}',1,'white',antialias=True)
             if pme.draw_button((300,200),'+',1,'white','green',True,DefTip):
-                self.points -= 1
-                self.defense += 1
-                pyg.time.delay(50)
+                if self.points > 0:
+                    self.points -= 1
+                    self.defense += 1
+                    pyg.time.delay(50)
                 # Agility
             pme.draw_text((85,250),f'Agility: {self.agility}',1,'white',antialias=True)
             if pme.draw_button((300,250),'+',1,'white','green',True,AgiTip):
-                self.points -= 1
-                self.agility += 1
+                if self.points > 0:
+                    self.points -= 1
+                    self.agility += 1
                 pyg.time.delay(50)
                 # Luck
             pme.draw_text(((pme.screen.get_size()[0]-(75*2))-105,150),f'Luck: {self.luck}',1,'white',antialias=True)
             if pme.draw_button(((pme.screen.get_size()[0]-(75*2))-125,150),'+',1,'white','green',True,LckTip):
-                self.points -= 1
-                self.luck += 1
+                if self.points > 0:
+                    self.points -= 1
+                    self.luck += 1
                 pyg.time.delay(50)
                 # Inteligence
             pme.draw_text(((pme.screen.get_size()[0]-(75*2))-105,200),f'Inteligence: {self.inteligence}',1,'white',antialias=True)
             if pme.draw_button(((pme.screen.get_size()[0]-(75*2))-125,200),'+',1,'white','green',True,IntTip):
-                self.points -= 1
-                self.inteligence += 1
+                if self.points > 0:
+                    self.points -= 1
+                    self.inteligence += 1
                 pyg.time.delay(50)
                 # Points
             pme.draw_text(((pme.screen.get_size()[0]-(75*2))//2,(pme.screen.get_size()[1]-(75*2))),f'Points: {self.points}',1,'white',antialias=True)

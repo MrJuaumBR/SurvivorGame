@@ -216,17 +216,23 @@ class PyMaxEngine():
         i = pyg.transform.rotate(surface,angle)
         return i
 
-    def draw_rect(self,Position:tuple or list,Size:tuple or list, color:tuple,border:int=0) -> pyg.Rect:
+    def draw_rect(self,Position:tuple or list,Size:tuple or list, color:tuple,border:int=0,screen:pyg.surface=None) -> pyg.Rect:
         """Draw a rect, it can have Alpha: (R,G,B,A)"""
         if len(color) == 4:
             o = pyg.Surface(Size,SRCALPHA)
             o.fill((color[0],color[1],color[2]))
             o.set_alpha(color[3])
             r = o.get_rect(topleft=Position)
-            self.screen.blit(o,r)
+            if screen:
+                screen.blit(o,r)
+            else:
+                self.screen.blit(o,r)
             o = r
         elif len(color) == 3:
-            o = pyg.draw.rect(self.screen,color,Rect(Position[0],Position[1],Size[0],Size[1]),border)
+            if screen:
+                o = pyg.draw.rect(screen,color,Rect(Position[0],Position[1],Size[0],Size[1]),border)
+            else:
+                o = pyg.draw.rect(self.screen,color,Rect(Position[0],Position[1],Size[0],Size[1]),border)
         return o
 
     def draw_rect2(self,Position:tuple or list,Size:tuple or list, color:tuple,border:int=0) -> pyg.Rect:
@@ -255,20 +261,20 @@ class PyMaxEngine():
 
         return CurX, Value
 
-    def draw_bar(self,Position: tuple or list, Size: tuple or list,CurValue:int,maxValue:int,colors=((0,0,0),(200,10,10),(0,0,0)),text="",textfont=0):
+    def draw_bar(self,Position: tuple or list, Size: tuple or list,CurValue:int,maxValue:int,colors=((0,0,0),(200,10,10),(0,0,0)),text="",textfont=0, screen:pyg.Surface=None):
         """Draw a bar, with max value, can be used as health bar."""
         tryDiv = lambda CurValue, maxValue: CurValue/maxValue if CurValue > 0 else 0
         X = tryDiv(CurValue,maxValue)
-        self.draw_rect(Position,(Size[0]*X,Size[1]),colors[1])
-        self.draw_rect(Position,Size,colors[0],3)
+        self.draw_rect(Position,(Size[0]*X,Size[1]),colors[1],screen=screen)
+        self.draw_rect(Position,Size,colors[0],3,screen=screen)
         if text != "":
             if len(self.fonts) < 1:
                 myf = self.create_sysFont("arial",int(Size[1]*0.8),False,False)
             else:
                 myf = self.fonts[textfont]
-            self.draw_text((Position[0]+4,Position[1]),text,myf,(200,200,200))
+            self.draw_text((Position[0]+4,Position[1]),text,myf,(200,200,200),screen=screen)
 
-    def draw_text(self,Position: tuple or list,text:str,font: pyg.font or int, color:tuple or list,bgcolor=None, antialias=False) -> pyg.rect:
+    def draw_text(self,Position: tuple or list,text:str,font: pyg.font or int, color:tuple or list,bgcolor=None, antialias=False, screen:pyg.Surface=None) -> pyg.rect:
         """Draw a text based into your font."""
         if type(font) == int:
             font = self.fonts[font]
@@ -278,7 +284,10 @@ class PyMaxEngine():
             r = font.render(str(text),antialias,color)
         r_rect = r.get_rect()
         r_rect.topleft = Position
-        self.screen.blit(r,r_rect)
+        if screen:
+            screen.blit(r,r_rect)
+        else:
+            self.screen.blit(r,r_rect)
         return r_rect
 
     def draw_button(self,Position:tuple or list,text:str,font:pyg.font or int, color:tuple or list,bgcolor=None, waitMouseUp=False, Tip=None) -> bool:

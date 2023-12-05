@@ -3,6 +3,7 @@ import os
 import random
 import importlib
 import webbrowser
+import sys
 
 import requests
 
@@ -81,7 +82,8 @@ CONFIG_DEFAULT_VALUE = {
     "FULLSCREEN":False,
     "SHOWFPS":False,
     'AUTOSAVE':True,
-    'AUTOSAVE_TIME':0
+    'AUTOSAVE_TIME':0,
+    'DEBUG_OUTPUT':False
 }
 
 AUTOSAVE_TIMES = [5,10,20,40,80,160]
@@ -105,7 +107,7 @@ def LoadSlashAnimation():
     for y in range(4):
         SlashAnimations[y] = []
         for x in range(6):
-            img = pyg.transform.scale(ss.image_at((StartPos[0],StartPos[1],86,86),-1),(64,64))
+            img = pyg.transform.scale(ss.image_at((StartPos[0],StartPos[1],96,96),-1),(64,64))
             SlashAnimations[y].append(img)
             StartPos[0] += X_Addition
         StartPos[1] += Y_Addition
@@ -228,6 +230,14 @@ pme.create_sysFont('arial', 12, True,False)
 pme.create_sysFont('arial', 10, True,False)
 
 from .camera import Camera
+
+DebugStrf = "%d%m%y-%I_%M_%S_%p"
+#print(datetime.now().strftime(DebugStrf))
+#print(datetime.now().strftime('%d/%m/%y, %I:%M:%S(%p)'))
+
+def EndGame():
+    print(f'[Game - {GAME_TITLE}] {Fore.LIGHTMAGENTA_EX}Game ended!{Fore.RESET}')
+    sys.stdout.close()
 
 ###                  After All, Load Plugin Handler                  ###
 

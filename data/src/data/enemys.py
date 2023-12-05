@@ -102,6 +102,12 @@ class Enemy(pyg.sprite.Sprite):
                     self.rect.x += self.path.x * self._speed
                     self.rect.y += self.path.y * self._speed
 
+    def draw_info(self):
+        convert_offset = self.camera.convert_offset((self.rect.centerx,self.rect.bottom))
+        if self.health < self.maxhealth:
+            pme.draw_bar((convert_offset[0]-16,convert_offset[1]+18),(32,15),self.health,self.maxhealth,text=f'{round(self.health)}/{round(self.maxhealth)}', textfont=5, screen=self.camera.internal_surf)
+        pme.draw_text([convert_offset[0]-16,convert_offset[1]+6],str(self._name[12:]),5,(255,255,255),screen=self.camera.internal_surf)
+
     def update(self, player):
         if self.health <= 0:
             self._locked = True
@@ -184,6 +190,13 @@ class Friendly(pyg.sprite.Sprite):
                     self.rect.y += self.path.y * self._speed
         if self.path.x != 0 or self.path.y != 0:
             self.animPlay()
+    
+    def draw_info(self):
+        surface = self.camera.internal_surf
+        convert_offset = self.camera.convert_offset((self.rect.centerx,self.rect.bottom))
+        if self.health < self.maxhealth:
+            pme.draw_bar((convert_offset[0]-16,convert_offset[1]+18),(32,15),self.health,self.maxhealth,text=f'{round(self.health)}/{round(self.maxhealth)}', textfont=5, screen=surface)
+        pme.draw_text([convert_offset[0]-16,convert_offset[1]+6],str(self._name[12:]),5,(255,255,255),screen=surface)
 
     def CheckSideAndState(self):
         if not self._locked:

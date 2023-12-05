@@ -144,6 +144,14 @@ def options():
         CONFIG["SHOWFPS"] = SHOWFPS_VALUE
         CONFIG['AUTOSAVE'] = AUTOSAVE_VALUE
         CONFIG['AUTOSAVE_TIME'] = AUTO_TIME
+        CONFIG['DEBUG_OUTPUT'] = DEBUGOUT_VALUE
+        if CONFIG['DEBUG_OUTPUT']:
+            if not os.path.exists('./save/debug/'):
+                os.mkdir('./save/debug/')
+                DebugFilename = f'debug{datetime.now().strftime(DebugStrf)}'
+                sys.stdout = open(f'./save/debug/{DebugFilename}.log', 'w+')
+        else:
+            sys.stdout = sys.__stdout__
 
         DB.database.update_value('config','data',0,CONFIG)
         DB.save()
@@ -152,6 +160,7 @@ def options():
         return False
     AUTO_TIME = CONFIG['AUTOSAVE_TIME']
     AUTOSAVE_VALUE = CONFIG['AUTOSAVE']
+    DEBUGOUT_VALUE = CONFIG['DEBUG_OUTPUT']
     print(f'[Options] {Fore.YELLOW}Config:\n')
     def test():
         anims = LoadSlashAnimation()
@@ -183,6 +192,27 @@ def options():
 
         AUTO_TIME = pme.draw_select((50,290),AUTOSAVE_TIMES,AUTO_TIME,2)
         pme.draw_text((25,270),'Auto Save Time: (s)',2,'black')
+
+        DEBUGOUT_VALUE = pme.draw_switch((25,345),2,DEBUGOUT_VALUE)
+        pme.draw_text((25,325),'Debug Output: ',2,'black')
+        if DEBUGOUT_VALUE:
+            if pme.draw_button((135, 325),'Open Logs',2,'black', 'blue'):
+                try:
+                    os.startfile(os.path.realpath('./save/debug/'))
+                    pyg.time.delay(175)
+                except Exception as err:
+                    print(f'{Fore.RED}[Config - Debug Output] Error: {err}{Fore.RESET}')
+            if pme.draw_button((190,325),'Clear Logs',2,'white', 'red'):
+                try:
+                    for path in os.listdir('./save/debug/'):
+                        try:
+                            os.remove(os.path.realpath('./save/debug/'+path))
+                        except Exception as e:
+                            print(f'{Fore.RED}[Config - Debug Output] File: (./save/debug/{path})\nError: {e}{Fore.RESET}')
+                except:
+                    print(f'{Fore.RED}[Config - Debug Output] Error: {err}{Fore.RESET}')
+                    
+                pyg.time.delay(175)
 
         if pme.draw_button((25,SCREEN.get_size()[1]-50),'Mods/Plugins',2,'black', 'blue'):
             ModsPlugins()

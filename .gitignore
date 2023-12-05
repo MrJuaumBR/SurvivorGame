@@ -13,3 +13,8 @@
 *.pyplugin
 /data/plugins/assets
 /data/plugins/__pycache__
+
+# Debug
+/save/
+/save/debug/
+*.log

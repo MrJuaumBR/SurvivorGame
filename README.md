@@ -15,6 +15,13 @@
     - [x] Volume
     - [x] Fullscreen
     - [x] Mods/Plugins Options
+    - [ ] Auto Save
+        - [ ] Auto Save Time
+    - [x] Debug Output
+        - [x] Disable/Enable
+        - [x] Open Folder Button
+        - [x] Delete Logs Button
+        - [x] Auto Close
 - [x] Legals
     - [x] Add LICENSE
     - [x] Break Lines

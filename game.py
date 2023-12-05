@@ -1,6 +1,11 @@
 from data.src.config import *
 from data.src.screens import *
 
+if CONFIG['DEBUG_OUTPUT']:
+    if not os.path.exists('./save/debug/'):
+        os.mkdir('./save/debug/')
+    DebugFilename = f'debug{datetime.now().strftime(DebugStrf)}'
+    sys.stdout = open(f'./save/debug/{DebugFilename}.log', 'w+')
 
 # Plugins Sender
 class _gameData():
@@ -55,7 +60,7 @@ def gameLoop():
         for ev in pme.events():
             if ev.type == QUIT:
                 DB.save()
-                print(f'[Game - {GAME_TITLE}] {Fore.LIGHTMAGENTA_EX}Game ended!{Fore.RESET}')
+                EndGame()
                 pme.quit()
             elif ev.type == KEYDOWN:
                 if ev.key == K_F9:
@@ -90,10 +95,10 @@ def gameLoop():
         pme.screen.fill((216, 211, 192)) # Fill Screen
         pme.insert_on(GAME_BACKGROUND,(0,0))
         CLOCK.tick(CONFIG['FPS'])
-    print(f'[Game - {GAME_TITLE}] {Fore.LIGHTMAGENTA_EX}Game ended!{Fore.RESET}')
+    EndGame()
 
 
 if __name__ == "__main__":
     LoadPluginsMods()
     gameLoop()
-    print(f'[Game - {GAME_TITLE}] {Fore.LIGHTMAGENTA_EX}Game ended!{Fore.RESET}')
+    EndGame()

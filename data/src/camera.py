@@ -50,6 +50,15 @@ class Camera(pyg.sprite.Group):
                     self._Player_Def = True
                 spr.update()
 
+    def Draw_Enemy_Info(self):
+        for sprite in self.sprites():
+            if sprite._type in ['enemy']:
+                try:
+                    sprite.draw_info()
+                except Exception as err:
+                    print(f'{Fore.RED}[Camera - Draw_Enemy_Info] Cant Draw Info: {sprite._name}\n{err}{Fore.RESET}')
+                    pass
+
     def draw(self,player):
         self.center_target_camera(player)
         self.zoom_keyboard_control()
@@ -74,6 +83,7 @@ class Camera(pyg.sprite.Group):
         self.display_surface.blit(scaled_surf,scaled_rect)
         player.draw_ui(self)
         self.player = player
+        self.Draw_Enemy_Info()
 
     def draw_in(self, surf, pos, to_surf:pyg.Surface):
         offset_pos = self.convert_offset(pos)
