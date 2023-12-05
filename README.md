@@ -10,6 +10,7 @@
 - [x] Character Creation
     - [x] least 5 chars required warn
     - [x] Color Select
+    - [x] Status Require Points Fix
 - [x] Options
     - [x] Show FPS
     - [x] Volume
