@@ -1,3 +1,8 @@
+"""
+Icons creation
+Icon For Gui & Others
+"""
+
 from ..config import *
 
 IconsSH = spritesheet(f'.{TEXTURES_PATH}/icons.png')

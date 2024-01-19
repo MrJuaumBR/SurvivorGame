@@ -1,3 +1,14 @@
+"""
+Camera System for the game
+
+Functions:
+Draw By layer;
+Draw By Y Pos;
+Zoom;
+Player Follow;
+...
+"""
+
 from .config import *
 import pygame as pyg
 from pygame.locals import *
@@ -75,6 +86,13 @@ class Camera(pyg.sprite.Group):
                 offset_pos = sprite.rect.topleft - self.offset + self.internal_offset
                 self.internal_surf.blit(sprite.image, offset_pos)
                 sprite.offset_pos = offset_pos
+                try:
+                    if sprite.hitbox:
+                        offset_hitbox = sprite.hitbox.topleft - self.offset + self.internal_offset
+                        hitbox = pyg.Surface(sprite.hitbox.size)
+                        self.internal_surf.blit(hitbox, offset_hitbox)
+                except:
+                    pass
         
         scaled_surf = pyg.transform.scale(self.internal_surf, self.internal_surf_size_vector*self.zoom_scale)
         scaled_rect = scaled_surf.get_rect(center=(self.half_w,self.half_h))

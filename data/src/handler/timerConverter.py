@@ -1,3 +1,13 @@
+"""
+Time Converter System By using FPS
+
+FPS = Frames Per Second
+
+TimeInSeconds = TimeInSeconds * FPS
+1 Second = 1 * FPS
+5 Seconds = 5 * FPS
+...
+"""
 
 
 class TimeConverter():

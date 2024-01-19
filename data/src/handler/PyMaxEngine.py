@@ -1,7 +1,12 @@
+"""
+Python Engine for general Use
+Pygame Engine
+"""
+
 # Imports
 import pygame as pyg # PyGame Dependecies
 from pygame.locals import * # PyGame Dependecies
-import os # ?
+import os # Any thing
 from sys import exit # PyGame quit
 from datetime import datetime # Screenshots
 from requests import get # Load Version
@@ -440,39 +445,60 @@ class Tip():
         self.Colors = FR_Color, BG_Color
         self.pme = pme
     
-    def Draw(self,mouse_pos:tuple):
-        """Draw"""
+    def Draw(self, mouse_pos: tuple):
+        """
+        Draw method to display tooltip at the specified mouse position.
+
+        Args:
+            mouse_pos (tuple): The position of the mouse.
+
+        Returns:
+            None
+        """
         if self.Active:
+            # Split the tooltip text into lines
             if self.Tip.find('\n') == -1:
                 t = []
             else:
                 t = self.Tip.split('\n')
-            s_posy:int = mouse_pos[1]-16
-            size_rect = [0,0]
+
+            s_posy: int = mouse_pos[1] - 16
+            size_rect = [0, 0]
+
             if len(t) > 0:
                 line_form = []
                 for line in t:
                     size = self.Font.size(line)
                     size_rect[1] += size[1]
                     size_rect[0] = size[0]
-                    pos:int = s_posy
+                    pos: int = s_posy
                     line_form.append((line, pos))
-                    s_posy += size[1]+2
+                    s_posy += size[1] + 2
 
-                self.pme.draw_rect((mouse_pos[0]+16,mouse_pos[1]-16),(size_rect[0]+2,size_rect[1]+2),self.Colors[1])
-                Border = lambda: self.Colors[2] if len(self.Colors) >= 3 else (255,255,255)
-                self.pme.draw_rect((mouse_pos[0]+14,mouse_pos[1]-18),(size_rect[0]+4,size_rect[1]+4),Border(),2)
+                # Draw the background rectangle of the tooltip
+                self.pme.draw_rect((mouse_pos[0] + 16, mouse_pos[1] - 16), (size_rect[0] + 2, size_rect[1] + 2), self.Colors[1])
+                Border = lambda: self.Colors[2] if len(self.Colors) >= 3 else (255, 255, 255)
+
+                # Draw the border rectangle of the tooltip
+                self.pme.draw_rect((mouse_pos[0] + 14, mouse_pos[1] - 18), (size_rect[0] + 4, size_rect[1] + 4), Border(), 2)
+
                 for t in line_form:
-                    #self.pme.draw_text((mouse_pos[0]+16,mouse_pos[1]-16),self.Tip,self.Font,self.Colors[0],self.Colors[1],True)
-                    self.pme.draw_text((mouse_pos[0]+16,t[1]),t[0],self.Font,self.Colors[0],antialias=True)
+                    # Draw each line of the tooltip
+                    self.pme.draw_text((mouse_pos[0] + 16, t[1]), t[0], self.Font, self.Colors[0], antialias=True)
             else:
                 size = self.Font.size(self.Tip)
                 size_rect[1] = size[1]
                 size_rect[0] = size[0]
-                self.pme.draw_rect((mouse_pos[0]+16,mouse_pos[1]-16),(size_rect[0]+2,size_rect[1]+2),self.Colors[1])
-                Border = lambda: self.Colors[2] if len(self.Colors) >= 3 else (255,255,255)
-                self.pme.draw_rect((mouse_pos[0]+14,mouse_pos[1]-18),(size_rect[0]+4,size_rect[1]+4),Border(),2)
-                self.pme.draw_text((mouse_pos[0]+16,mouse_pos[1]-16),self.Tip,self.Font,self.Colors[0],antialias=True)
+
+                # Draw the background rectangle of the tooltip
+                self.pme.draw_rect((mouse_pos[0] + 16, mouse_pos[1] - 16), (size_rect[0] + 2, size_rect[1] + 2), self.Colors[1])
+                Border = lambda: self.Colors[2] if len(self.Colors) >= 3 else (255, 255, 255)
+
+                # Draw the border rectangle of the tooltip
+                self.pme.draw_rect((mouse_pos[0] + 14, mouse_pos[1] - 18), (size_rect[0] + 4, size_rect[1] + 4), Border(), 2)
+
+                # Draw the tooltip text
+                self.pme.draw_text((mouse_pos[0] + 16, mouse_pos[1] - 16), self.Tip, self.Font, self.Colors[0], antialias=True)
 
     def HoveRing(self,state:bool):
         m = pyg.mouse.get_pos()

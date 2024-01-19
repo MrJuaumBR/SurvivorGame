@@ -1,3 +1,7 @@
+"""
+System for spritesheeting Textures
+"""
+
 import pygame
 from pygame.locals import *
 

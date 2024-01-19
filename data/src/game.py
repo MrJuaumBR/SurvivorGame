@@ -1,3 +1,7 @@
+"""
+All the In Game
+"""
+
 from .config import *
 from .camera import *
 from .player import player
@@ -47,6 +51,10 @@ def game(playerId):
         # Trees
         for i in range(random.randint(75,175)):
             random.choice([Tree])((random.randint(0, 2000), random.randint(0, 2000)), cam)
+
+        # Signs
+        for i in range(random.randint(5,10)):
+            random.choice([Sign1])((random.randint(0, 2000), random.randint(0, 2000)), cam, Text=random.choice(GAME_SIGNS_TEXT))
     generateMap()
     MenuOpen = False
 

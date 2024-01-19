@@ -1,5 +1,32 @@
-from data.src.config import *
-from data.src.screens import *
+"""
+Game File
+
+Run This for run the game
+"""
+
+try:
+    from data.src.config import *
+    from data.src.screens import *
+except ModuleNotFoundError:
+    print('Some Modules Not Found')
+    try:
+        print('Installing Modules...')
+        # Try to install modules
+        from os import system
+        system('pip install -r requirements.txt')
+        # If Sucess, re-run
+        print('Installed Needed Modules! Re Run the game')
+    except Exception as err:
+        print("Can't Install Modules...")
+        raise(err)
+    
+print(f"""
+[Game - {GAME_TITLE}]
+\tPyGame Version: {pyg.__version__}
+\tPyMaxEngine Version: {pme.ver}
+\tGame Version: {VERSION}
+\tWelcome to the game!
+""")
 
 if CONFIG['DEBUG_OUTPUT']:
     if not os.path.exists('./save/debug/'):

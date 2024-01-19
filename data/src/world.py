@@ -1,3 +1,7 @@
+"""
+A World System For Control the time of the In Game
+"""
+
 from .config import *
 
 class World():

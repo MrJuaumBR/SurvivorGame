@@ -1,3 +1,15 @@
+"""
+Screens for the game:
+
+CreateSave;
+LoadSave;
+options;
+ModsPlugins;
+Legals;
+News;
+"""
+
+
 from .config import *
 from .game import game, player
 from .world import *

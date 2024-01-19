@@ -1,3 +1,7 @@
+"""
+Player System for the In Game
+"""
+
 from .config import *
 from .data.Tiles import *
 from .data.Items import *
@@ -232,6 +236,9 @@ class player(pyg.sprite.Sprite):
     # Others
     _MOUSE:_Mouse = None
     Camera:Camera = None
+
+    # Signs
+    SignsReading = []
     def __init__(self, XY=(0,0),*groups) -> None:
         super().__init__(*groups)
         self.name = ""
@@ -430,12 +437,76 @@ class player(pyg.sprite.Sprite):
             self._locked = True
         else:
             self._locked = False
+    
+    # Signs
+    def addSigns(self, Text:str, color:tuple or list, Author:Sign1,Border:int=0):
+        sign = {
+            'text':split_text(Text,57),
+            'color':color,
+            'border':Border,
+            'author':Author.name,
+            'uniqueCode':Author.UniqueCode
+        }
+
+        self.SignsReading.append(sign)
+    def removeSignByUniqueCode(self, Author:Sign1):
+        for sign in self.SignsReading:
+            if sign['uniqueCode'] == Author.UniqueCode:
+                self.SignsReading.remove(sign)
+
+    def CheckByUniqueCode(self, Author:Sign1) -> bool:
+        for sign in self.SignsReading:
+            if sign['uniqueCode'] == Author.UniqueCode:
+                return True
+            
+        return False
+
+    def TriesRemove(self,Author:Sign1):
+        self.removeSignByUniqueCode(Author)
+
+    def DrawSign(self, sign: dict):
+        """
+        Draw a sign on the screen with the given sign parameters.
+
+        Args:
+            sign (dict): A dictionary containing the sign parameters.
+                - 'color' (tuple): The color of the sign.
+                - 'border' (bool): Whether or not the sign has a border.
+                - 'author' (str): The author of the sign.
+                - 'text' (list[str, ...]): The text to be displayed on the sign.
+
+        Returns:
+            None
+        """
+        screen_width, screen_height = SCREEN.get_size()
+        sign_color = sign['color']
+        sign_border = sign['border']
+        sign_author = sign['author']
+        sign_text = sign['text']
+
+        pme.draw_rect2((50, screen_height - 400), (screen_width - 100, 200), sign_color, sign_border)
+        pme.draw_text((55, screen_height - 390), sign_author, 1, (255, 255, 255), antialias=True)
+
+        font:pyg.font.Font = pme.fonts[4]
+
+        y_pos = screen_height - 350
+
+        for line in sign_text:
+            pme.draw_text((55, y_pos), line, 4, (255, 255, 255), antialias=True)
+            y_pos += font.size(line)[1] + 2
+
+    def DrawAllSigns(self):
+        if len(self.SignsReading) > 0:
+            for sign in self.SignsReading:
+                self.DrawSign(sign)
 
     def draw_ui(self, camera):
         convert_offset = camera.convert_offset((self.rect.centerx,self.rect.bottom))
         if self.health < self.maxhealth:
             pme.draw_bar((convert_offset[0]-16,convert_offset[1]+18),(32,15),self.health,self.maxhealth,text=f'{round(self.health)}/{round(self.maxhealth)}', textfont=5)
-        pme.draw_text([convert_offset[0]-16,convert_offset[1]+6],str(self.name[10:]),5,(255,255,255))        
+        pme.draw_text([convert_offset[0]-16,convert_offset[1]+6],str(self.name[10:]),5,(255,255,255))
+
+        self.DrawAllSigns()
         # self.Slash.draw()
 
     def statusRefactor(self):
@@ -550,56 +621,66 @@ class player(pyg.sprite.Sprite):
     def draw_inventory(self, state:bool):
         if state:
             # Background
-            pme.draw_rect((45,45),(pme.screen.get_size()[0]-(45*2),pme.screen.get_size()[1]-(45*2)),(216, 211, 192, 100))
+            background_color = (216, 211, 192, 100)
+            pme.draw_rect(
+                (45, 45),
+                (pme.screen.get_size()[0] - (45*2), pme.screen.get_size()[1] - (45*2)),
+                background_color
+            )
 
             # Scrolling Frame
             def Draw_Scroll():
                 btns = []
-                pme.draw_rect(self.Inv_Scrollarea_Rect.topleft,self.Inv_Scrollarea_Rect.size,(200,170,100,50))
-                pme.draw_rect(self.Inv_Scrollarea_Rect.topleft,self.Inv_Scrollarea_Rect.size,(200,200,200),2)
+                scroll_area_color = (200, 170, 100, 50)
+                pme.draw_rect(self.Inv_Scrollarea_Rect.topleft, self.Inv_Scrollarea_Rect.size, scroll_area_color)
+                pme.draw_rect(self.Inv_Scrollarea_Rect.topleft, self.Inv_Scrollarea_Rect.size, (200, 200, 200), 2)
+
                 BARY = self.Inv_Y_Shift
                 if self.Inv_Y_Shift < self.Inv_Scrollarea_Rect.top:
                     BARY = self.Inv_Scrollarea_Rect.top
-                elif self.Inv_Y_Shift+(self.Inv_Scrollarea_Rect.size[1]//len(self.Items['inventory'])) >= self.Inv_Scrollarea_Rect.bottom:
-                    BARY = self.Inv_Scrollarea_Rect.bottom - (self.Inv_Scrollarea_Rect.size[1]//len(self.Items['inventory']))
+                elif self.Inv_Y_Shift + (self.Inv_Scrollarea_Rect.size[1] // len(self.Items['inventory'])) >= self.Inv_Scrollarea_Rect.bottom:
+                    BARY = self.Inv_Scrollarea_Rect.bottom - (self.Inv_Scrollarea_Rect.size[1] // len(self.Items['inventory']))
 
-                Scroll_button_rect = Rect(self.Inv_Scrollarea_Rect.right+5,BARY,10,self.Inv_Scrollarea_Rect.size[1]//len(self.Items['inventory']))
-                pme.draw_rect(Scroll_button_rect.topleft,Scroll_button_rect.size,(90,90,90))
-                RangePL = 0
-                for x,item in enumerate(self.Items['inventory']):
+                scroll_button_rect = Rect(self.Inv_Scrollarea_Rect.right + 5, BARY, 10, self.Inv_Scrollarea_Rect.size[1] // len(self.Items['inventory']))
+                pme.draw_rect(scroll_button_rect.topleft, scroll_button_rect.size, (90, 90, 90))
+
+                range_pl = 0
+                for x, item in enumerate(self.Items['inventory']):
                     if x <= 0:
                         id = 1
-                    X,Y = (64+32,self.Inv_Y_Shift+(id*35))
-                    if RangePL >= 9:
+                    X, Y = (64 + 32, self.Inv_Y_Shift + (id * 35))
+                    if range_pl >= 9:
                         if id % 2 == 0:
-                            X,Y = (X,Y-25)
+                            X, Y = (X, Y - 25)
                         else:
-                            X,Y = (X,Y+25)
-                        RangePL = 0
+                            X, Y = (X, Y + 25)
+                        range_pl = 0
                     else:
-                        RangePL += 1
+                        range_pl += 1
                     
                     if Y < self.Inv_Scrollarea_Rect.top:
                         pass
                     elif Y > self.Inv_Scrollarea_Rect.bottom:
                         pass
                     else:
-                        pme.draw_rect((X,Y), (64,64),(200,195,100,50))
+                        pme.draw_rect((X, Y), (64, 64), (200, 195, 100, 50))
 
                 # Input
-                self.DetectScroll(Scroll_button_rect)
-                M_Pos = pyg.mouse.get_pos()
-                if (self.Inv_Scrollarea_Rect.collidepoint(M_Pos) or Scroll_button_rect.collidepoint(M_Pos)):
+                self.DetectScroll(scroll_button_rect)
+                m_pos = pyg.mouse.get_pos()
+                if (self.Inv_Scrollarea_Rect.collidepoint(m_pos) or scroll_button_rect.collidepoint(m_pos)):
                     if self.MouseWheel != 0:
                         self.Inv_Y_Shift += 5 * self.MouseWheel
-                        self.MouseWheel * 0.2
+                        self.MouseWheel = 0.2
 
             Draw_Scroll()
             # Title
-            pme.draw_text((50,50),'Inventory',1,'white',antialias=True)
+            title_color = 'white'
+            pme.draw_text((50, 50), 'Inventory', 1, title_color, antialias=True)
 
             # Close
-            if pme.draw_button((pme.screen.get_size()[0]-(75*2),50),'Close',1,'white','red',True):
+            close_button_color = ('white', 'red')
+            if pme.draw_button((pme.screen.get_size()[0] - (75*2), 50), 'Close', 1, *close_button_color, True):
                 self._InventoryOpen = False
 
 

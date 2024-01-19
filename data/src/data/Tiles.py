@@ -3,6 +3,7 @@ from ..handler.timerConverter import TimeConverter
 TC = TimeConverter(DB)
 
 TILES = "."+TILESET
+SIGNS = "."+TEXTURES_PATH+"/Signs.png"
 
 class Tile(pyg.sprite.Sprite):
     _layer = 2
@@ -66,8 +67,62 @@ class Tree(Tile):
     def __init__(self, XY, *groups) -> None:
         super().__init__(XY, *groups)
         self.image = pyg.transform.scale(spritesheet(TILES).image_at((16,64,32,32),-1),(64,64))
-        self.rect = Rect(XY[0],XY[1],32,32)
-    
+        self.rect = Rect(XY[0],XY[1],64,64)
+
+class Sign1(Tile):
+    _layer = 0
+    _collision = False
+    _build = False
+    name = "Sign"
+    def __init__(self, XY, *groups,Text:str="Hello! i'm a Sign.") -> None:
+        super().__init__(XY, *groups)
+        self.image = pyg.transform.scale(spritesheet(SIGNS).image_at((2,4,28,28),-1),(32,32))
+        self.rect = Rect(XY[0],XY[1],self.image.get_size()[0]*3,self.image.get_size()[1]*3)
+
+        # Create Hitbox, and set it to the center of rect
+        self.hitbox:pyg.Rect = Rect(XY[0],XY[1],64,64)
+        self.hitbox.center = self.rect.center
+
+        # Defines the signs text
+        self.Text = str(Text)
+
+        # IsActive
+        self.IsActive = False
+        self.ActivateKey = K_KP_ENTER or K_RETURN
+        self.WaitCooldown = 0 # Cooldown Default = 0
+
+        # Unique Code
+        self.UniqueCode = str(random.randint(0, 200000))+self.name + str(random.randint(0, 100))
+
+    # def _draw(self):
+    #     pme.draw_rect2((50,SCREEN.get_size()[1]-175),(SCREEN.get_size()[0]-100,150),(0,0,0,200),2)
+
+    def draw_text(self,player):
+        if self.IsActive:
+            if self.hitbox.colliderect(player.rect):
+                if not player.CheckByUniqueCode(self):
+                    # print(f"{self.name}({self.UniqueCode}): {self.Text}")
+                    player.addSigns(self.Text, (190,120,56,120), self, 2)
+            else:
+                self.IsActive = False
+        else:
+            if player.CheckByUniqueCode(self):
+                # print(f"[] {self.name}({self.UniqueCode}) - Removed")
+                player.TriesRemove(self)
+
+    def collision(self, player):
+        # Modded for Sign
+        self.draw_text(player)
+        if self.WaitCooldown > 0:
+            self.WaitCooldown -= 1
+        if self.WaitCooldown <= 0:
+            if self.hitbox.colliderect(player.rect):
+                if pme.key_pressed(self.ActivateKey):
+                    # Reset Cooldown
+                    self.WaitCooldown = TimeConverter(DB).getTime(.25)
+                    self.IsActive = not self.IsActive
+            else:
+                self.IsActive = False
 
 """ DECORATION TILES"""
 class Decoration1(Tile):

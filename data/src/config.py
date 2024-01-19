@@ -1,9 +1,14 @@
+"""
+Config File
+"""
+
 import json
 import os
 import random
 import importlib
 import webbrowser
 import sys
+from .auto_installer import AUINS
 
 import requests
 
@@ -83,7 +88,8 @@ CONFIG_DEFAULT_VALUE = {
     "SHOWFPS":False,
     'AUTOSAVE':True,
     'AUTOSAVE_TIME':0,
-    'DEBUG_OUTPUT':False
+    'DEBUG_OUTPUT':False,
+    'Text2Speech':False
 }
 
 AUTOSAVE_TIMES = [5,10,20,40,80,160]
@@ -112,6 +118,33 @@ def LoadSlashAnimation():
             StartPos[0] += X_Addition
         StartPos[1] += Y_Addition
     return SlashAnimations
+
+"""         Split Text         """
+def split_text(text: str, max_per_line: int) -> list[str]:
+    """
+    Splits a given text into multiple lines based on a maximum number of characters per line.
+
+    Args:
+        text (str): The input text to be split.
+        max_per_line (int): The maximum number of characters allowed per line.
+
+    Returns:
+        list[str]: A list of strings, each representing a line of the split text.
+    """
+    lines = []
+    current_line = ""
+    index_letter = 0
+    if len(text) >= max_per_line:
+        for letter in text:
+            current_line += letter
+            index_letter += 1
+            if index_letter%max_per_line == 0:
+                index_letter = 0
+                lines.append(current_line)
+                current_line = ''
+    else:
+        lines.append(text)
+    return lines
 
 def CreateTables():
     DB.database.create_table('saves',[('data',bytes,False)])
@@ -193,7 +226,7 @@ PUSH_NEWS = eval(requests.get('https://potatogameleague.jpgamesbr.repl.co/api/ne
 
 TRACKS = {'ingame':f'.{SOUNDS_PATH}/ambientguitar.wav','level-up':f'.{SOUNDS_PATH}/levelup.mp3'}
 
-FPS_FONT = pme.create_sysFont('arial',14,True,True)
+FPS_FONT = pme.create_sysFont('arial',14,True,True) # Font Zero: 0
 def ShowFPS(t=None):
     if CONFIG['SHOWFPS']:
         if int(CLOCK.get_fps()) <= CONFIG['FPS'] * 0.3:
@@ -223,11 +256,19 @@ def ShowFPS(t=None):
 global RND_COLOR
 RND_COLOR = pme.colors[random.choice(list(pme.colors.keys()))]
 
-pme.create_sysFont('arial', 32, True,False)
-pme.create_sysFont('arial', 18, True,False)
-pme.create_sysFont('arial', 40, True,True)
-pme.create_sysFont('arial', 12, True,False)
-pme.create_sysFont('arial', 10, True,False)
+"""          FONTS          """
+
+pme.create_sysFont('arial', 32, True,False) # Font One: 1
+pme.create_sysFont('arial', 18, True,False) # Font Two: 2
+pme.create_sysFont('arial', 40, True,True) # Font Three: 3
+pme.create_sysFont('arial', 12, True,False) # Font Four: 4
+pme.create_sysFont('arial', 10, True,False) # Font Five: 5
+
+"""          SIGNS          """
+from math import pi
+
+GAME_SIGNS_TEXT = ['Hello!',"I'm just a normal sign","Roberto Azevedo","Cleython Bom De guerra",f"{round(pi,8)}"]
+
 
 from .camera import Camera
 
