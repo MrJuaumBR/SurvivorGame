@@ -4,9 +4,6 @@
 # LICENSE
 *Please follow the license*
 
-# TODO List
-*Moved*
-
 
 # Addons/Plugins/Mods
 

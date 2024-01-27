@@ -1,4 +1,6 @@
-from ..config import *
+from ..config import (DB, TILESET, TEXTURES_PATH, pyg, spritesheet,pme,random,SCREEN)
+from pygame.locals import *
+from ..handler.PyMaxEngine import Tip
 from ..handler.timerConverter import TimeConverter
 TC = TimeConverter(DB)
 
@@ -23,6 +25,13 @@ class ItemBase(pyg.sprite.Sprite):
 
     def draw(self):
         SCREEN.blit(self.image,self.rect)
+
+    def Load(self, data:dict):
+        for key in data.keys():
+            try:
+                self.__dict__[key] = data[key]
+            except:
+                pass
 
     def update(self, *args, **kwargs) -> None:
 

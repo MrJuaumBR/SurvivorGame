@@ -58,12 +58,23 @@
 - [x] Fixed Mixer Not Initilized(Error)
 - [x] Add Auto Installer(Only For Not Builded Game.)
 - [x] Signs System
+- [x] World Save & Load
+- [x] Frames Border Fix
+- [x] Integrity Checker
+- [x] Auto Save
+- [x] Auto Save Time
+- [x] Text 2 Speech
 
 // FIXME
+[!] Mouse Icon
+[!] Mouse Look To Sides
+[!] Inventory Update
+[!] Character Attack Bug when zoom
 
 // BUG
-- [*] Fix Ghost Mouse
-- [*] Fix Old Mouse Icon
+[*] Mouse Look To Sides
+[*] Mouse Icon
+
 
 // NOTE
 - Slash of attach is bugging
@@ -74,8 +85,5 @@
 [ ] Character Skills
 [ ] Mouse
 [ ] Character Art
-[ ] Auto Save
-[ ] Auto Save Time
 [ ] Menus
 [ ] Dialogs
-[ ] Text 2 Speech

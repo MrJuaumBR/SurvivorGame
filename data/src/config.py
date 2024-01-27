@@ -8,13 +8,25 @@ import random
 import importlib
 import webbrowser
 import sys
+from .lines_counter import ForItemInDir
 from .auto_installer import AUINS
+import pyttsx3 # Text 2 Speech
+from threading import Thread
+Text2Speech = pyttsx3.Engine()
+
+def _Speak(text):
+    Text2Speech.say(text)
+    Text2Speech.runAndWait()
+
+def Speak(text:str):
+    Thread(target=_Speak, args=(str(text),)).start()
 
 import requests
 
 global TRACKS, VERSION, BUILD_TILES
 
-VERSION = 0.1
+VERSION = '0.1.1b'
+DEBUG = False
 GAME_TITLE = "Survivor Game"
 WORLD_MAX_SIZE = (2000,2000)
 
@@ -28,6 +40,7 @@ TEXTURES_PATH = "/data/assets"
 ICONS_PATH    = TEXTURES_PATH + "/icons"
 PLAYERS_SPRITESHEET = TEXTURES_PATH + "/player_spritesheet.png"
 TILESET = TEXTURES_PATH + "/tileset.png"
+DECO_ANIMATED = TEXTURES_PATH + "/deco_animated.png"
 EMOTIONSET = TEXTURES_PATH + "/emotions.png"
 PLAYERS = [
     "Man 1",
@@ -87,12 +100,16 @@ CONFIG_DEFAULT_VALUE = {
     "FULLSCREEN":False,
     "SHOWFPS":False,
     'AUTOSAVE':True,
-    'AUTOSAVE_TIME':0,
+    'AUTOSAVE_TIME':4,
     'DEBUG_OUTPUT':False,
     'Text2Speech':False
 }
 
-AUTOSAVE_TIMES = [5,10,20,40,80,160]
+# 0, 1, 2, 3, 4
+AUTOSAVE_TIMES = [20,40,60,120,300] # Autosave Times in seconds
+
+# 0, 1, 2
+FPS_LIMIT_LIST = [30,60,120] # Frame Per Seconds Limit List
 
 DF_WIDTH = 1024
 DF_HEIGHT = 720
@@ -157,6 +174,10 @@ def CreateTables():
     DB.save()
 
 CreateTables() # Create Tables
+
+def get_class(class_name) -> object:
+    # Import Enemys
+    return getattr(sys.modules[__name__], class_name)
 
 # Load Data
 CONFIG = dict(DB.database.get_value('config','data',0))
@@ -268,13 +289,12 @@ pme.create_sysFont('arial', 10, True,False) # Font Five: 5
 from math import pi
 
 GAME_SIGNS_TEXT = ['Hello!',"I'm just a normal sign","Roberto Azevedo","Cleython Bom De guerra",f"{round(pi,8)}"]
+GAME_NAMES = ['Pow Pow Game','Medieval Life','Plataformer Game','Survival2d',"JPyDB","ChosenBit","MrJuaum"]
 
 
 from .camera import Camera
 
 DebugStrf = "%d%m%y-%I_%M_%S_%p"
-#print(datetime.now().strftime(DebugStrf))
-#print(datetime.now().strftime('%d/%m/%y, %I:%M:%S(%p)'))
 
 def EndGame():
     print(f'[Game - {GAME_TITLE}] {Fore.LIGHTMAGENTA_EX}Game ended!{Fore.RESET}')
@@ -283,3 +303,7 @@ def EndGame():
 ###                  After All, Load Plugin Handler                  ###
 
 PLoader = Loader(pme, VERSION)
+
+from .data.enemys import *
+from .data.Tiles import *
+from .data.Items import *

@@ -12,6 +12,13 @@ Player Follow;
 from .config import *
 import pygame as pyg
 from pygame.locals import *
+from .data.Tiles import *
+from .data.enemys import *
+from .data.Items import *
+
+# Save System
+from pickle import dumps, loads
+from base64 import b64encode, b64decode
 
 class Camera(pyg.sprite.Group):
     _Player_Def = False
@@ -42,14 +49,16 @@ class Camera(pyg.sprite.Group):
 
     def zoom_keyboard_control(self):
         # More Zoom
-        if pme.key_pressed(K_PLUS) or (pme.key_pressed(K_KP_PLUS) or pme.key_pressed(K_PAGEUP)):
+        if (pme.key_pressed(K_PLUS) or pme.key_pressed(K_i)) or (pme.key_pressed(K_KP_PLUS) or pme.key_pressed(K_PAGEUP)):
             self.zoom_scale += 0.1
             if self.zoom_scale > 1.5:
                 self.zoom_scale = 1.5
-        elif pme.key_pressed(K_MINUS) or (pme.key_pressed(K_KP_MINUS) or pme.key_pressed(K_PAGEDOWN)):
+        elif (pme.key_pressed(K_MINUS) or pme.key_pressed(K_o)) or (pme.key_pressed(K_KP_MINUS) or pme.key_pressed(K_PAGEDOWN)):
             self.zoom_scale -= 0.1
             if self.zoom_scale < 0.8:
                 self.zoom_scale = 0.8
+        elif (pme.key_pressed(K_EQUALS) or pme.key_pressed(K_KP_EQUALS)):
+            self.zoom_scale = 1
 
     def update(self,player ,*args, **kwargs) -> None:
         for spr in self.sprites():
@@ -65,42 +74,62 @@ class Camera(pyg.sprite.Group):
         for sprite in self.sprites():
             if sprite._type in ['enemy']:
                 try:
-                    sprite.draw_info()
+                    sprite.draw_info(self)
                 except Exception as err:
-                    print(f'{Fore.RED}[Camera - Draw_Enemy_Info] Cant Draw Info: {sprite._name}\n{err}{Fore.RESET}')
+                    print(f'{Fore.RED}[Camera - Draw_Enemy_Info] Cant Draw Info: {sprite.name}\n{err}{Fore.RESET}')
                     pass
 
-    def draw(self,player):
+    def draw(self, player):
+        # Center the camera on the player
         self.center_target_camera(player)
+        
+        # Control the zoom level using keyboard input
         self.zoom_keyboard_control()
 
-        self.internal_surf.fill((100,195,100))
-        # active elements
-        for sprite in sorted(self.sprites(),key=lambda sprite: sprite.layer):
-            if sprite._type in ['decoration']:
-                offset_pos = sprite.rect.topleft - self.offset + self.internal_offset
-                self.internal_surf.blit(sprite.image, offset_pos)
-                sprite.offset_pos = offset_pos
-        for sprite in sorted(self.sprites(),key=lambda sprite: sprite.rect.centery):
-            if sprite._type in ['tile','player','enemy']:
-                offset_pos = sprite.rect.topleft - self.offset + self.internal_offset
-                self.internal_surf.blit(sprite.image, offset_pos)
-                sprite.offset_pos = offset_pos
-                try:
-                    if sprite.hitbox:
-                        offset_hitbox = sprite.hitbox.topleft - self.offset + self.internal_offset
-                        hitbox = pyg.Surface(sprite.hitbox.size)
-                        self.internal_surf.blit(hitbox, offset_hitbox)
-                except:
-                    pass
+        # Fill the internal surface with a green color
+        self.internal_surf.fill((100, 195, 100))
         
-        scaled_surf = pyg.transform.scale(self.internal_surf, self.internal_surf_size_vector*self.zoom_scale)
-        scaled_rect = scaled_surf.get_rect(center=(self.half_w,self.half_h))
+        # Draw the decoration sprites on the internal surface
+        for sprite in sorted(self.sprites(), key=lambda sprite: sprite.layer):
+            if sprite._type == 'decoration':
+                offset_pos = sprite.rect.topleft - self.offset + self.internal_offset
+                self.internal_surf.blit(sprite.image, offset_pos)
+                sprite.offset_pos = offset_pos
+        
+        # Draw the tile, player, and enemy sprites on the internal surface
+        for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.centery):
+            if sprite._type in ['tile', 'player', 'enemy']:
+                offset_pos = tuple(sprite.rect.topleft) - self.offset + self.internal_offset
+                self.internal_surf.blit(sprite.image, offset_pos)
+                sprite.offset_pos = offset_pos
+                
+                # Draw hitbox if DEBUG mode is enabled
+                if DEBUG:
+                    try:
+                        if sprite.hitbox:
+                            offset_hitbox = sprite.hitbox.topleft - self.offset + self.internal_offset
+                            hitbox = pyg.Surface(sprite.hitbox.size)
+                            self.internal_surf.blit(hitbox, offset_hitbox)
+                    except:
+                        pass
+        
+        # Scale the internal surface based on the zoom scale
+        scaled_surf = pyg.transform.scale(self.internal_surf, self.internal_surf_size_vector * self.zoom_scale)
+        scaled_rect = scaled_surf.get_rect(center=(self.half_w, self.half_h))
 
+        # Draw the player's slash effect on the scaled surface
         player.Slash.draw(scaled_surf)
-        self.display_surface.blit(scaled_surf,scaled_rect)
+        
+        # Blit the scaled surface onto the display surface
+        self.display_surface.blit(scaled_surf, scaled_rect)
+        
+        # Draw the player's UI elements
         player.draw_ui(self)
+        
+        # Set the current player object
         self.player = player
+        
+        # Draw enemy information
         self.Draw_Enemy_Info()
 
     def draw_in(self, surf, pos, to_surf:pyg.Surface):
@@ -117,23 +146,88 @@ class Camera(pyg.sprite.Group):
             self.add(spr)
 
     def sprites_rect(self) -> list[pyg.Rect,]:
-        spr = self.sprites()
+        spr:list[pyg.sprite.Sprite] = self.sprites()
         rects = []
         for sprite in spr:
             rects.append(sprite.rect)
         return rects
     
-    def sprites_collide(self, rect:Rect) -> list:
-        spr = self.sprites()
+    def sprites_collide(self, rect:Rect) -> list[pyg.sprite.Sprite,]:
+        spr:list[pyg.sprite.Sprite] = self.sprites()
         rects = []
         for sprt in spr:
             if sprt.rect.colliderect(rect):
                 rects.append(sprt)
         return rects
 
-    def saving(self) -> list:
+    def EncodeNecessaireBytes(self, sprite:Tile) -> bytes:
+        """
+        Encode the necessary bytes for a given sprite.
+        
+        Args:
+            sprite (Tile): The sprite object to encode.
+        
+        Returns:
+            bytes: The encoded bytes.
+        """
+        spriteRealDict = sprite.__dict__
+        sprite_dict = {
+            'rect': sprite.rect,
+        }
+        try:
+            try:
+                if spriteRealDict['UniqueCode']:
+                    sprite_dict['UniqueCode'] = sprite.UniqueCode
+            except: pass
+            try:
+                if spriteRealDict['Text']:
+                    sprite_dict['Text'] = sprite.Text
+            except: pass
+        except Exception as err:
+            print(err, sprite)
+
+        dic = b64encode(dumps([sprite_dict,sprite.__class__.__name__]))
+
+        return dic
+
+    def DeencodeNecessaireBytes(self, dic:bytes) -> [dict, str]:
+        """
+        Decode the given base64 encoded dictionary string into a list of dictionaries and a string.
+
+        Parameters:
+            dic (bytes): The base64 encoded dictionary string.
+
+        Returns:
+            list[dict, str]: The decoded dictionary as a list of dictionaries and a string.
+        """
+        dic:[dict, str] = loads(b64decode(dic))
+
+        d:dict = dic[0]
+        s:str = dic[1]
+
+        return d,s
+
+    def saving(self) -> list[dict,]:
         s = []
         for spr in self.sprites():
-            if str(spr._type).lower() in ['tile','item']:
-                s.append([spr.rect.topleft])
+            if str(spr._type).lower() in ['tile','item','enemy','decoration']:
+                s.append(self.EncodeNecessaireBytes(spr))
         return s
+    
+    def Load(self, sprites:list[bytes,]):
+        for sprite in sprites:
+            spriteData, spriteClassName = self.DeencodeNecessaireBytes(sprite)
+            clss = get_class(spriteClassName)
+            try:
+                try:
+                    if clss._sub_type == 'sign':
+                        spr = clss(XY=(0,0),groups=(self),text=spriteData['Text'])
+                    else:
+                        spr = clss(XY=(0,0),groups=(self))
+                except: 
+                    spr = clss(XY=(0,0),groups=(self))
+                
+            except:
+                spr = clss()
+            spr.Load(spriteData)
+            self.add(spr)

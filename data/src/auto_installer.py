@@ -9,8 +9,9 @@ Only works if python is installed & Only in windows
 from os import system
 
 class AutoInstaller():
-    ex_JPyDB = ''
-    ex_PyGame = ''
+    ex_JPyDB = 'pip install -i https://test.pypi.org/simple/ JPyDB'
+    ex_PyGame = 'pip install pygame'
+    ex_pyttsx3 = 'pip install pyttsx3'
     def InstallJPyDB(self):
         try:
             system(self.ex_JPyDB)

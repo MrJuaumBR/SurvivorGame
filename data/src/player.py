@@ -14,7 +14,7 @@ import math
 TC = TimeConverter(DB)
 
 TranslateCharacter = {
-    'Man 1':{'Walk':{'up':[(0,48,16,16),(16,48,16,16),(32,48,16,16),],'down':[(0,0,16,16),(16,0,16,16),(32,0,16,16)],'right':[(0,32,16,16),(16,32,16,16),(32,32,16,16)],'left':[(0,16,16,16),(16,16,16,16),(32,16,16,16)],},'Idle':{'up':[(0,48,16,16)],'down':[(16,0,16,16)],'right':[(16,32,16,16)],'left':[(16,16,16,16)]},
+    'Man 1':{'Walk':{'up':[(0,48,16,16),(16,48,16,16),(32,48,16,16),],'down':[(0,0,16,16),(16,0,16,16),(32,0,16,16)],'right':[(0,32,16,16),(16,32,16,16),(32,32,16,16)],'left':[(0,16,16,16),(16,16,16,16),(32,16,16,16)],},'Idle':{'up':[(16,48,16,16)],'down':[(16,0,16,16)],'right':[(16,32,16,16)],'left':[(16,16,16,16)]},
         'Dead':{
 
         }
@@ -26,7 +26,7 @@ TranslateCharacter = {
 
 TC = TimeConverter(DB)
 
-MouseSprites = spritesheet(f'.{TEXTURES_PATH}/mouse.png')
+MouseSprites = spritesheet(f'.{TEXTURES_PATH}/mouses.png')
 
 import pygame as pyg
 import math
@@ -51,8 +51,8 @@ class _Mouse():
         """
         self.player = player
         self.camera = self.player.Camera
-        self.getSpriteDisplay = lambda Active: MouseSprites.image_at((0,0,16,16),0) if Active else MouseSprites.image_at((16,0,16,16),0)
-        self.display = pyg.cursors.Cursor((15,5), pyg.transform.scale(self.getSpriteDisplay(self.Active),(24,24)))
+        # self.getSpriteDisplay = lambda Active: MouseSprites.image_at((0,0,16,16),0) if Active else MouseSprites.image_at((16,0,16,16),0)
+        # self.display = pyg.cursors.Cursor((15,5), pyg.transform.scale(self.getSpriteDisplay(self.Active),(24,24)))
 
     def SideRefactor(self, player_pos, mouse_pos):
         direction = self.camera.convert_offset(mouse_pos) - pyg.math.Vector2(self.camera.convert_offset(player_pos))
@@ -80,8 +80,7 @@ class _Mouse():
             if not (self.player._locked or self.player._dead):
                 pme.draw_text((350,SCREEN.get_size()[1]-50),f'Mouse Mode: Pointing, {self.Set_Side}',2,'white',antialias=True)
                 self.player.lastSide = self.Set_Side
-            self.getSpriteDisplay = lambda Active: MouseSprites.image_at((0,0,16,16),0) if Active else MouseSprites.image_at((16,0,16,16),0)
-            self.display = pyg.cursors.Cursor((15,5), pyg.transform.scale(self.getSpriteDisplay(self.Active),(24,24)))
+            #self.display = pyg.cursors.Cursor((15,5), pyg.transform.scale(self.getSpriteDisplay(self.Active),(24,24)))
 
     def update(self):
         """
@@ -94,8 +93,8 @@ class _Mouse():
         self.pos = pyg.mouse.get_pos()
         try:
             self.Set_Side = self.SideRefactor(self.player.rect.topleft,self.pos)
-            self.display = pyg.cursors.Cursor((15,5), pyg.transform.scale(self.getSpriteDisplay(self.Active),(24,24)))
-            pyg.mouse.set_cursor(self.display)
+            # self.display = pyg.cursors.Cursor((15,5), pyg.transform.scale(self.getSpriteDisplay(self.Active),(24,24)))
+            # pyg.mouse.set_cursor(self.display)
         except Exception as err:
             print(f'{Fore.RED}[Mouse - Player] Mouse Side Cant Refactor for now.{Fore.RESET}')
             print(f'\n\n{Fore.RED}{err}{Fore.RESET}')
@@ -103,10 +102,10 @@ class _Mouse():
     
     def UPDATE_MOUSE(self):
         print(f'{Fore.YELLOW}[Mouse - Player] Update Mouse Icon.{Fore.RESET}')
-        newMS = spritesheet(f'.{TEXTURES_PATH}/mouse.png')
-        self.getSpriteDisplay = lambda Active: newMS.image_at((0,0,16,16),0) if Active else newMS.image_at((16,0,16,16),0)
-        self.display = pyg.cursors.Cursor((15,5), pyg.transform.scale(self.getSpriteDisplay(self.Active),(24,24)))
-        pyg.mouse.set_cursor(self.display)
+        newMS = spritesheet(f'.{TEXTURES_PATH}/mouses.png')
+        
+        #self.display = pyg.cursors.Cursor((15,5), pyg.transform.scale(self.getSpriteDisplay(self.Active),(24,24)))
+        #pyg.mouse.set_cursor(self.display)
 
 class _Slash(pyg.sprite.Sprite):
     image = None
@@ -211,7 +210,7 @@ class _Slash(pyg.sprite.Sprite):
 
 class player(pyg.sprite.Sprite):
     _layer = 5
-    saveable = ['name','health','maxhealth','speed','LastExperience','W','Items','pos','_locked','_dead', 'Color','Level','Experience','points','attack','luck','defense','agility','inteligence']
+    saveable = ['name','health','maxhealth','speed','LastExperience','W','Items','pos','_locked','_dead', 'Color','Level','Experience','points','attack','luck','defense','agility','inteligence','WorldCreated']
 
     # GUIs
     MouseWheel = 0
@@ -236,6 +235,7 @@ class player(pyg.sprite.Sprite):
     # Others
     _MOUSE:_Mouse = None
     Camera:Camera = None
+    WorldCreated:bool = False
 
     # Signs
     SignsReading = []
@@ -254,6 +254,7 @@ class player(pyg.sprite.Sprite):
         self.animationsBuild()
 
         self.Slash = _Slash(self)
+        self.WorldCreated = False
 
         self.rect = Rect(self.pos[0],self.pos[1],self.size[0],self.size[1])
         self.image = self.animations[self.curr][self.lastSide][int(self.anim_frame)]
@@ -439,13 +440,15 @@ class player(pyg.sprite.Sprite):
             self._locked = False
     
     # Signs
-    def addSigns(self, Text:str, color:tuple or list, Author:Sign1,Border:int=0):
+    def addSigns(self, Text:str, color:tuple or list, Author:Sign1,Border:int=0,border_color:tuple=None):
         sign = {
             'text':split_text(Text,57),
             'color':color,
             'border':Border,
             'author':Author.name,
-            'uniqueCode':Author.UniqueCode
+            'uniqueCode':Author.UniqueCode,
+            'border_color':border_color,
+            'already_speech':False
         }
 
         self.SignsReading.append(sign)
@@ -474,7 +477,8 @@ class player(pyg.sprite.Sprite):
                 - 'border' (bool): Whether or not the sign has a border.
                 - 'author' (str): The author of the sign.
                 - 'text' (list[str, ...]): The text to be displayed on the sign.
-
+                - 'border_color' (tuple): The color of the border, if the sign has a border.
+                - 'already_speech' (bool): Whether or not the sign has already been spoken.
         Returns:
             None
         """
@@ -483,8 +487,9 @@ class player(pyg.sprite.Sprite):
         sign_border = sign['border']
         sign_author = sign['author']
         sign_text = sign['text']
+        sign_border_color = sign['border_color']
 
-        pme.draw_rect2((50, screen_height - 400), (screen_width - 100, 200), sign_color, sign_border)
+        pme.draw_rect2((50, screen_height - 400), (screen_width - 100, 200), sign_color, sign_border,border_color=sign_border_color)
         pme.draw_text((55, screen_height - 390), sign_author, 1, (255, 255, 255), antialias=True)
 
         font:pyg.font.Font = pme.fonts[4]
@@ -495,10 +500,28 @@ class player(pyg.sprite.Sprite):
             pme.draw_text((55, y_pos), line, 4, (255, 255, 255), antialias=True)
             y_pos += font.size(line)[1] + 2
 
+        if not sign['already_speech']:
+            # Not Already Speech
+            if CONFIG['Text2Speech']:
+                # Speech Config is True, Speech
+                for line in sign_text:
+                    try:
+                        Speak(line)
+                    except:
+                        pass
+                sign['already_speech'] = True
+                return True
+            else:
+                return False
+        else:
+            return False
+
     def DrawAllSigns(self):
         if len(self.SignsReading) > 0:
             for sign in self.SignsReading:
-                self.DrawSign(sign)
+                ALR_SK = self.DrawSign(sign)
+                if sign['already_speech'] != True:
+                    sign['already_speech'] = ALR_SK
 
     def draw_ui(self, camera):
         convert_offset = camera.convert_offset((self.rect.centerx,self.rect.bottom))
@@ -550,6 +573,7 @@ class player(pyg.sprite.Sprite):
                 MouseChange = 0
             if collision.collidepoint(pyg.mouse.get_pos()):
                 self.MouseWheelChange(MouseChange)
+            return MouseChange
 
     def drawUis(self,BUILD_TILES:dict):
         self._MOUSE.draw()
@@ -671,7 +695,7 @@ class player(pyg.sprite.Sprite):
                 if (self.Inv_Scrollarea_Rect.collidepoint(m_pos) or scroll_button_rect.collidepoint(m_pos)):
                     if self.MouseWheel != 0:
                         self.Inv_Y_Shift += 5 * self.MouseWheel
-                        self.MouseWheel = 0.2
+                        self.MouseWheel *= 0.2
 
             Draw_Scroll()
             # Title
@@ -745,7 +769,7 @@ class player(pyg.sprite.Sprite):
             else:
                 s[item] = self.__dict__[item]
         if camera:
-            s['sprites']:list = camera.saving()
+            s['sprites']:list[dict,] = camera.saving()
             try:
                 s['sprites'].remove(self)
             except:
@@ -759,7 +783,7 @@ class player(pyg.sprite.Sprite):
                 for s in i.saveable:
                     i.__dict__[s] = item[s]
                 self.Items[key].append(i)
-    def Load(self, data:bytes):
+    def Load(self, data:bytes) -> dict:
         s = {}
         ddata:dict = pickle.loads(base64.b64decode(data))
         for item in self.saveable:
@@ -771,3 +795,6 @@ class player(pyg.sprite.Sprite):
 
         # Update Things
         self.animationsBuild()
+
+        # return data
+        return ddata

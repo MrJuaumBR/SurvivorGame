@@ -105,8 +105,12 @@ class PyMaxEngine():
             print(f"[PyMaxEngine] {Fore.RED}You already have a screen!{Fore.RESET}")
 
     def while_key_hold(self,key):
+        return self.key_pressed(key)
+        
+    def key_pressed(self,Key:int) -> bool:
+        """Return True while the key pressed"""
         keys = pyg.key.get_pressed()
-        if keys[key]:
+        if keys[Key]:
             return True
         else:
             return False
@@ -223,7 +227,7 @@ class PyMaxEngine():
 
     def draw_rect(self,Position:tuple or list,Size:tuple or list, color:tuple,border:int=0,screen:pyg.surface=None) -> pyg.Rect:
         """Draw a rect, it can have Alpha: (R,G,B,A)"""
-        if len(color) == 4:
+        if len(color) == 4 and border in [0, '', None]:
             o = pyg.Surface(Size,SRCALPHA)
             o.fill((color[0],color[1],color[2]))
             o.set_alpha(color[3])
@@ -233,18 +237,25 @@ class PyMaxEngine():
             else:
                 self.screen.blit(o,r)
             o = r
-        elif len(color) == 3:
-            if screen:
-                o = pyg.draw.rect(screen,color,Rect(Position[0],Position[1],Size[0],Size[1]),border)
-            else:
-                o = pyg.draw.rect(self.screen,color,Rect(Position[0],Position[1],Size[0],Size[1]),border)
+        else:
+            if len(color) == 3 or border >= 1:
+                if screen:
+                    o = pyg.draw.rect(screen,color,Rect(Position[0],Position[1],Size[0],Size[1]),border)
+                else:
+                    o = pyg.draw.rect(self.screen,color,Rect(Position[0],Position[1],Size[0],Size[1]),border)
         return o
 
-    def draw_rect2(self,Position:tuple or list,Size:tuple or list, color:tuple,border:int=0) -> pyg.Rect:
-        """Draw a rect, it can have Alpha: (R,G,B,A)"""
+    def draw_rect2(self,Position:tuple or list,Size:tuple or list, color:tuple,border:int=0,border_color:tuple=None) -> pyg.Rect:
+        """
+        Draw a rect, it can have Alpha: (R,G,B,A)
+        Border_Color Not can have Alpha
+        """
         self.draw_rect(Position,Size,color,0)
         if border > 0:
-            self.draw_rect(Position,Size,color,border)
+            if border_color:
+                self.draw_rect(Position=Position,Size=Size,color=border_color,border=border)
+            else:
+                self.draw_rect(Position=Position,Size=Size,color=color,border=border)
 
     def draw_slider(self,Position:tuple or list,Width:int,CurX:int,colors=((0,0,0),(200,200,200))):
         """Draw a slider control return current ball X and float between 0 - 1"""
@@ -399,14 +410,6 @@ class PyMaxEngine():
     def save_surface(self,surface: pyg.surface):
         """Save a screenshot of the passed surface"""
         pyg.image.save(surface,f'{self.screenshot_path}{datetime.now().strftime(strftime)}.png')
-
-    def key_pressed(self,Key:int) -> bool:
-        """Return True while the key pressed"""
-        keys = pyg.key.get_pressed()
-        if keys[Key]:
-            return True
-        else:
-            return False
 
     def events(self):
         """Get Pygame Events"""

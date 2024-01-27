@@ -1,4 +1,6 @@
-from ..config import *
+from ..config import (DB, TILESET, TEXTURES_PATH, pyg, spritesheet,pme,random,Fore,PLAYERS_SPRITESHEET)
+from pygame.locals import *
+from ..handler.PyMaxEngine import Tip
 from ..handler.timerConverter import TimeConverter
 TC = TimeConverter(DB)
 
@@ -39,13 +41,16 @@ class Enemy(pyg.sprite.Sprite):
 
     _locked = False
     _type = 'enemy'
-    _name = "Enemy Base"
-    def __init__(self, XY,*groups) -> None:
+    _sub_type = 'aggro'
+    name = "Enemy Base"
+    def __init__(self, XY=(0,0),*groups) -> None:
         super().__init__(*groups)
         self.rect = Rect(XY[0],XY[1],32,32)
         self.image = pyg.Surface((32,32))
         self.image.fill((200,0,0))
-        self.camera = self.groups()[0]
+        try:
+            self.camera = self.groups()[0]
+        except: pass
 
         self.repeat = 0
         self.path = pyg.math.Vector2(0,0)
@@ -71,21 +76,24 @@ class Enemy(pyg.sprite.Sprite):
             d = self._defense / 3
             self.health -= (damage - d)
 
-    def Reward(self):
+    def Reward(self,player):
         try:
-            plr = self.camera.player
+            try:
+                plr = self.camera.player
+            except: pass
+            plr = player
             if self.health <= 0 and plr.health >= 1:
                 exp = int(self._baseExp* (1+(self._level * (plr.luck/3))))
                 gold = int(25*(self._level*(plr.luck/3)))
                 plr.Experience += exp
                 plr.money += gold
-                print(f'[Enemy] Player Killed {self._name} and won {Fore.LIGHTBLUE_EX}{exp}{Fore.RESET} of exp and {Fore.YELLOW}${gold}{Fore.RESET} of money')
+                print(f'[Enemy] Player Killed {self.name} and won {Fore.LIGHTBLUE_EX}{exp}{Fore.RESET} of exp and {Fore.YELLOW}${gold}{Fore.RESET} of money')
         except Exception as err:
             print(f'{Fore.RED}[Enemy - Reward] {err}{Fore.RESET}')
 
-    def IsDead(self):
+    def IsDead(self,player):
         if self.health<=0:
-            self.Reward()
+            self.Reward(player)
             self.kill()
 
     def movement(self):
@@ -102,18 +110,25 @@ class Enemy(pyg.sprite.Sprite):
                     self.rect.x += self.path.x * self._speed
                     self.rect.y += self.path.y * self._speed
 
-    def draw_info(self):
-        convert_offset = self.camera.convert_offset((self.rect.centerx,self.rect.bottom))
+    def draw_info(self,camera):
+        convert_offset = camera.convert_offset((self.rect.centerx,self.rect.bottom))
         if self.health < self.maxhealth:
-            pme.draw_bar((convert_offset[0]-16,convert_offset[1]+18),(32,15),self.health,self.maxhealth,text=f'{round(self.health)}/{round(self.maxhealth)}', textfont=5, screen=self.camera.internal_surf)
-        pme.draw_text([convert_offset[0]-16,convert_offset[1]+6],str(self._name[12:]),5,(255,255,255),screen=self.camera.internal_surf)
+            pme.draw_bar((convert_offset[0]-16,convert_offset[1]+18),(32,15),self.health,self.maxhealth,text=f'{round(self.health)}/{round(self.maxhealth)}', textfont=5, screen=camera.internal_surf)
+        pme.draw_text([convert_offset[0]-16,convert_offset[1]+6],str(self.name[12:]),5,(255,255,255),screen=camera.internal_surf)
+
+    def Load(self, data:dict):
+        for key in data.keys():
+            try:
+                self.__dict__[key] = data[key]
+            except:
+                pass
 
     def update(self, player):
         if self.health <= 0:
             self._locked = True
         self.collision(player)
         self.movement()
-        self.IsDead()
+        self.IsDead(player)
         if self._attack_delay > 0:
             self._attack_delay -= 1
         if self._move_delay > 0:
@@ -128,13 +143,16 @@ class Friendly(pyg.sprite.Sprite):
     _speed = 5
     _locked = False
     _type = 'enemy'
-    _name = "Friendly Base"
+    _sub_type = 'friendly'
+    name = "Friendly Base"
     health = 100
     maxhealth = 100
     size = (32,32)
-    def __init__(self, XY,*groups) -> None:
+    def __init__(self, XY=(0,0),*groups) -> None:
         super().__init__(*groups)
-        self.camera = self.groups()[0]
+        try:
+            self.camera = self.groups()[0]
+        except: pass
 
         self.repeat = 0
         self.path = pyg.math.Vector2(0,0)
@@ -159,7 +177,7 @@ class Friendly(pyg.sprite.Sprite):
     def setupAnimations(self):
         try:
             myStyle = Animations['Friendly']
-            myStyle = myStyle[self._name]
+            myStyle = myStyle[self.name]
             for state in myStyle.keys():
                 for side in myStyle[state].keys():
                     for i,anim in enumerate(myStyle[state][side]):
@@ -191,12 +209,12 @@ class Friendly(pyg.sprite.Sprite):
         if self.path.x != 0 or self.path.y != 0:
             self.animPlay()
     
-    def draw_info(self):
-        surface = self.camera.internal_surf
-        convert_offset = self.camera.convert_offset((self.rect.centerx,self.rect.bottom))
+    def draw_info(self,camera):
+        surface = camera.internal_surf
+        convert_offset = camera.convert_offset((self.rect.centerx,self.rect.bottom))
         if self.health < self.maxhealth:
             pme.draw_bar((convert_offset[0]-16,convert_offset[1]+18),(32,15),self.health,self.maxhealth,text=f'{round(self.health)}/{round(self.maxhealth)}', textfont=5, screen=surface)
-        pme.draw_text([convert_offset[0]-16,convert_offset[1]+6],str(self._name[12:]),5,(255,255,255),screen=surface)
+        pme.draw_text([convert_offset[0]-16,convert_offset[1]+6],str(self.name[12:]),5,(255,255,255),screen=surface)
 
     def CheckSideAndState(self):
         if not self._locked:
@@ -217,6 +235,13 @@ class Friendly(pyg.sprite.Sprite):
         if self.health <= 0:
             self.state = 'Dead'
 
+    def Load(self, data:dict):
+        for key in data.keys():
+            try:
+                self.__dict__[key] = data[key]
+            except:
+                pass
+
     def update(self, player):
         self.collision(player)
         self.movement()
@@ -224,7 +249,7 @@ class Friendly(pyg.sprite.Sprite):
             self._move_delay -= 1
 
 class Chicken(Friendly):
-    _name = "Chicken"
+    name = "Chicken"
     health = 25
     maxhealth = 25
     _speed = 2.5

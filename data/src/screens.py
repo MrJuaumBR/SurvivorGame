@@ -143,6 +143,7 @@ def LoadSaveScreen():
         CLOCK.tick(CONFIG['FPS'])
         
 def options():
+    LinesCounted = ForItemInDir("./")
     run = True
 
     VOL_VALUE = CONFIG['VOLUME']
@@ -150,6 +151,8 @@ def options():
 
     SCR_VALUE = CONFIG["FULLSCREEN"]
     SHOWFPS_VALUE = CONFIG["SHOWFPS"]
+    TEXT2SPEECH_VALUE = CONFIG['Text2Speech']
+    FPS_LIMIT = FPS_LIMIT_LIST.index(CONFIG['FPS'])
     def exitM():
         CONFIG['VOLUME'] = VOL_VALUE
         CONFIG['FULLSCREEN'] = SCR_VALUE
@@ -157,6 +160,8 @@ def options():
         CONFIG['AUTOSAVE'] = AUTOSAVE_VALUE
         CONFIG['AUTOSAVE_TIME'] = AUTO_TIME
         CONFIG['DEBUG_OUTPUT'] = DEBUGOUT_VALUE
+        CONFIG['Text2Speech'] = TEXT2SPEECH_VALUE
+        CONFIG['FPS'] = FPS_LIMIT_LIST[FPS_LIMIT]
         if CONFIG['DEBUG_OUTPUT']:
             if not os.path.exists('./save/debug/'):
                 os.mkdir('./save/debug/')
@@ -189,24 +194,40 @@ def options():
 
         pme.draw_rect2((20,75),(SCREEN.get_size()[0]-40,SCREEN.get_size()[1]-100),(216, 211, 192,100),2)
         # Draw Components
+
+            # Slider of Volume
         VOL_X, VOL_VALUE = pme.draw_slider((25,80),SCREEN.get_size()[0]-100,VOL_X)
         VOL_VALUE = 100*VOL_VALUE
         pme.draw_text((20,50),f'Volume: {int(VOL_VALUE)}',2,'black')
 
+            # Switch for Fullscreen
         SCR_VALUE = pme.draw_switch((25,135),2,SCR_VALUE)
         pme.draw_text((25,110),'Fullscreen: ',2,'black')
 
+            # Switch for Show FPS
         SHOWFPS_VALUE = pme.draw_switch((25,190),2,SHOWFPS_VALUE)
         pme.draw_text((25,170),'Show FPS: ',2,'black')
 
+            # Switch for autsave
         AUTOSAVE_VALUE = pme.draw_switch((25,245),2,AUTOSAVE_VALUE)
         pme.draw_text((25,225),'Auto Save: ',2,'black')
 
+            # Select for autosave time delay
         AUTO_TIME = pme.draw_select((50,290),AUTOSAVE_TIMES,AUTO_TIME,2)
         pme.draw_text((25,270),'Auto Save Time: (s)',2,'black')
 
+            # Switch for debug output
         DEBUGOUT_VALUE = pme.draw_switch((25,345),2,DEBUGOUT_VALUE)
         pme.draw_text((25,325),'Debug Output: ',2,'black')
+
+            # Switch for Text2Speech
+        TEXT2SPEECH_VALUE = pme.draw_switch((25,400),2,TEXT2SPEECH_VALUE)
+        pme.draw_text((25,380),'Text to Speech: ',2,'black')
+            
+            # Select for FPS
+        FPS_LIMIT = pme.draw_select((25,455),FPS_LIMIT_LIST,FPS_LIMIT,2)
+        pme.draw_text((25,435),'Frame Per Second Limit: ',2,'black')
+
         if DEBUGOUT_VALUE:
             if pme.draw_button((135, 325),'Open Logs',2,'black', 'blue'):
                 try:
@@ -225,6 +246,11 @@ def options():
                     print(f'{Fore.RED}[Config - Debug Output] Error: {err}{Fore.RESET}')
                     
                 pyg.time.delay(175)
+
+        # project Lines Counter at bottom right
+        pme.draw_text((SCREEN.get_size()[0]-300,SCREEN.get_size()[1]-50),f'Project Lines: {LinesCounted}',2,'black')
+        # project Version at bottom right
+        pme.draw_text((SCREEN.get_size()[0]-300,SCREEN.get_size()[1]-90),f'Project Version: {VERSION}',2,'black')
 
         if pme.draw_button((25,SCREEN.get_size()[1]-50),'Mods/Plugins',2,'black', 'blue'):
             ModsPlugins()
@@ -386,8 +412,6 @@ def Legals():
 
         pme.update()
         pme.screen.fill((216, 211, 192)) # Fill SCreen
-
-def News():
     run = False
     Y_SHIFT = 50
     def Format():

@@ -3,6 +3,11 @@ Game File
 
 Run This for run the game
 """
+from data.src.Exceptions import *
+from data.src.integrity import IntegrityCheck
+
+if not IntegrityCheck('./'):
+    raise MissingFilesOrFolders
 
 try:
     from data.src.config import *
@@ -20,12 +25,16 @@ except ModuleNotFoundError:
         print("Can't Install Modules...")
         raise(err)
     
+DB_CHECK= lambda: f'Database Size: {DB.get_db_size()}' if os.path.exists(DB.database.filename) else ''
 print(f"""
 [Game - {GAME_TITLE}]
 \tPyGame Version: {pyg.__version__}
 \tPyMaxEngine Version: {pme.ver}
+\tJPyDB Version: {DB.database.VERSION}
 \tGame Version: {VERSION}
 \tWelcome to the game!
+\tTotal Lines: {ForItemInDir("./")}
+\t{DB_CHECK()}
 """)
 
 if CONFIG['DEBUG_OUTPUT']:
@@ -109,8 +118,6 @@ def gameLoop():
             pme.quit()
         elif pme.draw_button((200,SCREEN.get_size()[1]-75),'LEGALS',2,'white','brown'):
             Legals()
-        elif pme.draw_button((275,SCREEN.get_size()[1]-50),'NEWS',2,'white','brown'):
-            News()
         elif pme.draw_button((200,SCREEN.get_size()[1]-50),'GitHub',2,'white','black',True):
             webbrowser.open('https://github.com/MrJuaumBR/SurvivorGame')
             pyg.time.delay(100)

@@ -22,7 +22,17 @@ def game(playerId):
     DrawEmotions = False
     cam = Camera()
     Plr = player((550,550),cam)
-    Plr.Load(DB.database.get_value('saves','data',id=playerId))
+    PlayerData:dict = Plr.Load(DB.database.get_value('saves','data',id=playerId))
+
+    # Auto Save System
+    AutoSaveTimeInSeconds = AUTOSAVE_TIMES[CONFIG['AUTOSAVE_TIME']]
+    AutoSaveTimeInFPS = TC.getTime(AutoSaveTimeInSeconds)
+    AutoSaveTimeCounter = AutoSaveTimeInFPS
+    AutoSaving = False
+    AutoSaveText = ''
+    AutoSaveStep = 0
+
+    # World System Load
     W:World = World()
     W.Load(Plr.W.__dict__)
 
@@ -36,26 +46,76 @@ def game(playerId):
         pyg.mixer.music.stop()
         return False
     def generateMap():
-        # Enemy
-        for i in range(random.randint(10, 25)):
-            Enemy((random.randint(0, 2000), random.randint(0, 2000)), cam)
-        
-        # Friendly
-        for i in range(random.randint(10,25)):
-            Chicken((random.randint(0, 2000), random.randint(0, 2000)), cam)
-
-        # Decorations
-        for i in range(random.randint(100, 250)):
-            random.choice([Decoration1,Decoration2,Decoration3,Decoration4,Decoration5])((random.randint(0, 2000), random.randint(0, 2000)), cam)
-        
-        # Trees
-        for i in range(random.randint(75,175)):
-            random.choice([Tree])((random.randint(0, 2000), random.randint(0, 2000)), cam)
-
-        # Signs
-        for i in range(random.randint(5,10)):
-            random.choice([Sign1])((random.randint(0, 2000), random.randint(0, 2000)), cam, Text=random.choice(GAME_SIGNS_TEXT))
-    generateMap()
+        WorldGen_Process = 0
+        print('[Game] Generating World:')
+        BarColor = [50,50,50]
+        # Loop For Generate
+        while True:
+            if WorldGen_Process == 0:
+                # Enemy
+                print('\t - Generating Enemys...')
+                for i in range(random.randint(10, 25)):
+                    Enemy((random.randint(0, 2000), random.randint(0, 2000)), cam)
+                WorldGen_Process += 1
+            elif WorldGen_Process == 1:
+                # Friendly
+                print('\t - Generating Friendly Enemys...')
+                for i in range(random.randint(10,25)):
+                    Chicken((random.randint(0, 2000), random.randint(0, 2000)), cam)
+                WorldGen_Process += 1
+            elif WorldGen_Process == 2:
+                # Decorations
+                print('\t - Generating Decorations...')
+                for i in range(random.randint(100, 250)):
+                    random.choice([Decoration1,Decoration2,Decoration3,Decoration4,Decoration5])((random.randint(0, 2000), random.randint(0, 2000)), cam)
+                WorldGen_Process += 1
+            elif WorldGen_Process == 3:
+                # Rare Decoration
+                print('\t - Generating Rare Decorations...')
+                for i in range(random.randint(15,30)):
+                    random.choice([CandleDeco,SkullDeco,FirebowlDeco])((random.randint(0, 2000), random.randint(0, 2000)), cam)
+                WorldGen_Process += 1
+            elif WorldGen_Process == 4:
+                # Trees
+                print('\t - Generating Trees...')
+                for i in range(random.randint(75,175)):
+                    random.choice([Tree])((random.randint(0, 2000), random.randint(0, 2000)), cam)
+                WorldGen_Process += 1
+            elif WorldGen_Process == 5:
+                # Signs
+                print('\t - Generating Signs...')
+                for i in range(random.randint(5,10)):
+                    random.choice([Sign1])((random.randint(0, 2000), random.randint(0, 2000)), cam, Text=random.choice(GAME_SIGNS_TEXT))
+                WorldGen_Process += 1
+            elif WorldGen_Process == 6:
+                # TombleStones
+                print('\t - Generating TombleStones...')
+                for i in range(random.randint(5,10)):
+                    random.choice([Rip])((random.randint(0, 2000), random.randint(0, 2000)), cam, Text=f"F, {random.choice(GAME_NAMES)}")
+                BarColor[1] += 5
+                WorldGen_Process += 1
+            else:
+                if WorldGen_Process >= 50:
+                    Plr.WorldCreated = True
+                    break
+                else:
+                    BarColor[1] += 5
+                    if BarColor[1] > 255:
+                        BarColor[1] = 255
+                    WorldGen_Process += 1
+                    pyg.time.delay(50)
+            
+            CLOCK.tick(CONFIG['FPS']//4)
+            SCREEN.fill('black')
+            pme.draw_bar((50,SCREEN.get_size()[1]-175),(SCREEN.get_size()[0]-100,50),CurValue=WorldGen_Process,maxValue=50,colors=((0,0,0),BarColor,(0,0,0)))
+            pme.draw_text((SCREEN.get_size()[0]-250,SCREEN.get_size()[1]-100),f'Generating World... ({round((WorldGen_Process/50)*100,2)}%)',2,'white')
+            pme.update()
+    
+    if not Plr.WorldCreated:
+        # Create World
+        generateMap()
+    else:
+        cam.Load(PlayerData['sprites'])
     MenuOpen = False
 
     # Tips
@@ -168,3 +228,44 @@ def game(playerId):
         cam.draw(Plr)
         # FPS
         CLOCK.tick(CONFIG['FPS'])
+        if CONFIG['AUTOSAVE']:
+            AutoSaveTimeCounter -= 1 # Minus FPS to Count
+            if AutoSaveTimeCounter <= 0 and not AutoSaving:
+                print('[Game - InGame] Auto Saving...')
+                AutoSaveText = 'Auto Saving...'
+                AutoSaving = True
+                AutoSaveStep = 1
+                AutoSaveTimeCounter = 0
+            elif AutoSaving:
+                if AutoSaveStep == 1:
+                    AutoSaveTimeCounter = int(AutoSaveTimeInFPS//10)
+                    print('[Game - InGame] Saving(1/2)...')
+                    AutoSaveText = 'Saving... (1/2)'
+                    DB.database.update_value('saves','data',playerId,Plr.Save(cam))
+                    AutoSaveStep = 2
+
+                if AutoSaveTimeCounter <= 0 and AutoSaveStep == 2:
+                    AutoSaveStep = 3
+
+                elif AutoSaveStep == 3:
+                    AutoSaveTimeCounter = int(AutoSaveTimeInFPS//10)
+                    print('[Game - InGame] Saving(2/2)...')
+                    AutoSaveText = 'Saving... (2/2)'
+                    DB.database.save()
+                    AutoSaveStep = 4
+                if AutoSaveTimeCounter <= 0 and AutoSaveStep == 4:
+                    AutoSaveStep = 5
+
+                if AutoSaveStep == 5:
+                    # Reset for loop
+                    AutoSaveTimeCounter = AutoSaveTimeInFPS
+                    AutoSaving = False
+                    AutoSaveStep = 0
+                    AutoSaveText = ''
+                    print('[Game - InGame] Saved!')
+
+            # Draw Gui Text to warn saving
+            if AutoSaving:
+                Screen_size = SCREEN.get_size()
+                pme.draw_rect2(((Screen_size[0]//2)-100,50),(200,50),(190,190,55,125),border=2,border_color=(90,90,0))
+                pme.draw_text(((Screen_size[0]//2)-80,57),AutoSaveText,2,(255,255,255),antialias=True)
